@@ -1,0 +1,1264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Comms & Engagement Plan</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;1,500&family=Source+Sans+3:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+:root{
+  --forest:#2d5016;--forest-mid:#3d6b1f;--forest-light:#4a7c24;
+  --forest-pale:#e8f0e0;--forest-mist:#f2f6ec;
+  --gold:#c8960c;--gold-bright:#e0a80e;--gold-pale:#fdf3d0;
+  --stone:#8a8478;--parchment:#f8f4ed;--ink:#1a1a14;--ink-soft:#3a3a2e;
+  --white:#fff;--red:#c0392b;
+  --c1:#2d6e4e;--c2:#7b3f00;--c3:#1a4a7a;--c4:#5a1a6e;
+  --c5:#7a4a00;--c6:#1a5a4a;--c7:#6e2d2d;--c8:#2d4a6e;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{font-family:'Source Sans 3',sans-serif;background:var(--parchment);color:var(--ink);overflow-x:hidden;}
+
+/* TEXTURE */
+body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");pointer-events:none;z-index:0;}
+
+/* SCREENS */
+.screen{display:none;position:relative;z-index:1;min-height:100vh;}
+.screen.active{display:block;}
+
+/* TOP NAV */
+#top-nav{
+  position:sticky;top:0;z-index:200;
+  background:var(--forest);
+  height:52px;padding:0 40px;
+  display:none;align-items:center;justify-content:space-between;
+  border-bottom:3px solid var(--gold);
+}
+#top-nav.visible{display:flex;}
+.nav-left{display:flex;align-items:center;gap:6px;}
+.bc-btn{background:none;border:none;font-family:inherit;font-size:13px;color:rgba(255,255,255,.55);cursor:pointer;padding:2px 0;transition:color .18s;text-decoration:underline;text-underline-offset:3px;text-decoration-color:rgba(255,255,255,.2);}
+.bc-btn:hover{color:#fff;}
+.bc-sep{color:rgba(255,255,255,.3);font-size:11px;}
+.bc-current{font-size:13px;color:#fff;font-weight:600;}
+.nav-sections{display:flex;gap:4px;}
+.nav-sec-btn{background:none;border:1px solid rgba(255,255,255,.18);border-radius:4px;font-family:inherit;font-size:12px;color:rgba(255,255,255,.65);cursor:pointer;padding:4px 10px;transition:all .15s;}
+.nav-sec-btn:hover,.nav-sec-btn.active{background:rgba(255,255,255,.12);color:#fff;border-color:rgba(255,255,255,.35);}
+.nav-save-btn{background:var(--gold);border:none;color:#fff;font-family:inherit;font-size:12px;font-weight:600;padding:6px 14px;border-radius:4px;cursor:pointer;transition:background .18s;}
+.nav-save-btn:hover{background:var(--gold-bright);}
+
+/* SAVE BAR */
+.save-toast{position:fixed;bottom:20px;right:20px;background:var(--forest);color:#fff;padding:9px 18px;border-radius:30px;font-size:13px;font-weight:500;opacity:0;transition:opacity .28s;z-index:500;pointer-events:none;}
+.save-toast.show{opacity:1;}
+
+/* ═══════════════════════════════════════════
+   INTRO / HOME SCREEN
+═══════════════════════════════════════════ */
+#home{min-height:100vh;display:flex;flex-direction:column;}
+
+.hero{
+  background:var(--forest);
+  min-height:50vh;
+  position:relative;overflow:hidden;
+  display:flex;flex-direction:column;justify-content:flex-end;
+  padding:0;
+}
+.hero-banner{
+  position:absolute;inset:0;
+  background:linear-gradient(135deg,#1a3009 0%,#2d5016 60%,#3d6b1f 100%);
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;transition:filter .2s;
+}
+.hero-banner img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0;}
+.hero-banner-overlay{
+  position:absolute;inset:0;
+  background:linear-gradient(to top,rgba(20,35,8,.85) 0%,rgba(20,35,8,.2) 60%,transparent 100%);
+}
+.hero-banner-prompt{
+  position:relative;z-index:2;
+  text-align:center;color:rgba(255,255,255,.5);
+  font-size:14px;font-weight:300;letter-spacing:1px;
+  display:flex;flex-direction:column;align-items:center;gap:8px;
+  transition:opacity .2s;
+}
+.hero-banner-prompt .icon{font-size:32px;opacity:.6;}
+#banner-input{display:none;}
+.hero-banner:hover .hero-banner-prompt{opacity:.8;}
+
+.hero-content{
+  position:relative;z-index:3;
+  padding:40px 60px 48px;
+}
+.hero-label{font-size:11px;letter-spacing:4px;text-transform:uppercase;color:rgba(255,255,255,.5);font-weight:300;margin-bottom:12px;}
+.hero-title{
+  font-family:'Playfair Display',serif;
+  font-size:52px;font-weight:500;color:#fff;
+  line-height:1.1;margin-bottom:0;
+  outline:none;
+  min-width:200px;
+  display:inline-block;
+}
+.hero-title:empty::before{content:attr(data-ph);color:rgba(255,255,255,.35);}
+.hero-subtitle{font-size:14px;color:rgba(255,255,255,.5);font-weight:300;margin-top:6px;}
+.hero-gold-bar{height:4px;background:linear-gradient(90deg,var(--gold),var(--gold-bright),var(--gold));width:100%;}
+
+.home-desc-section{
+  background:var(--white);
+  padding:48px 60px;
+  border-bottom:1px solid rgba(0,0,0,.07);
+}
+.home-desc-label{font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);font-weight:600;margin-bottom:12px;}
+.home-desc-text{
+  font-size:16px;line-height:1.8;color:var(--ink-soft);
+  outline:none;min-height:60px;max-width:760px;
+}
+.home-desc-text:empty::before{content:attr(data-ph);color:#c0bdb5;pointer-events:none;}
+
+/* FOUR SECTION CARDS */
+.home-sections{
+  flex:1;display:grid;grid-template-columns:1fr 1fr;
+  border-top:1px solid rgba(0,0,0,.06);
+}
+.section-card{
+  padding:48px 52px;cursor:pointer;
+  border-right:1px solid rgba(0,0,0,.07);
+  border-bottom:1px solid rgba(0,0,0,.07);
+  position:relative;overflow:hidden;
+  transition:background .22s;
+  display:flex;flex-direction:column;gap:14px;
+}
+.section-card:nth-child(2n){border-right:none;}
+.section-card:nth-child(3),.section-card:nth-child(4){border-bottom:none;}
+.section-card::before{
+  content:'';position:absolute;left:0;top:0;bottom:0;width:4px;
+  background:var(--gold);transform:scaleY(0);transform-origin:bottom;transition:transform .28s ease;
+}
+.section-card:hover::before{transform:scaleY(1);}
+.section-card:hover{background:var(--forest-mist);}
+.section-num{font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);font-weight:600;}
+.section-icon{font-size:32px;}
+.section-name{
+  font-family:'Playfair Display',serif;font-size:26px;color:var(--forest);
+  outline:none;
+}
+.section-name:empty::before{content:attr(data-ph);color:#bbb;font-style:italic;}
+.section-desc{font-size:14px;color:var(--stone);line-height:1.6;font-weight:300;}
+.section-arrow{font-size:18px;color:var(--gold);opacity:0;transition:opacity .18s,transform .18s;margin-top:auto;}
+.section-card:hover .section-arrow{opacity:1;transform:translateX(5px);}
+
+/* ═══════════════════════════════════════════
+   SHARED PAGE STYLES
+═══════════════════════════════════════════ */
+.page-header{
+  background:var(--forest);padding:36px 52px 32px;
+  border-bottom:3px solid var(--gold);
+  position:relative;overflow:hidden;
+}
+.page-header::after{content:'';position:absolute;bottom:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--gold),var(--gold-bright),transparent);}
+.page-eyebrow{font-size:11px;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,.45);font-weight:300;margin-bottom:8px;}
+.page-title{
+  font-family:'Playfair Display',serif;font-size:36px;color:#fff;font-weight:500;
+  outline:none;display:inline-block;min-width:100px;
+}
+.page-title:empty::before{content:attr(data-ph);color:rgba(255,255,255,.3);}
+.page-body{padding:44px 52px;max-width:1100px;}
+
+/* ═══════════════════════════════════════════
+   SECTION 1 — OVERVIEW (Word import)
+═══════════════════════════════════════════ */
+.doc-dropzone{
+  border:2px dashed rgba(45,80,22,.25);border-radius:10px;
+  padding:32px;text-align:center;cursor:pointer;
+  background:var(--forest-mist);transition:all .2s;margin-bottom:28px;
+  display:flex;align-items:center;gap:20px;
+}
+.doc-dropzone:hover,.doc-dropzone.drag-over{border-color:var(--forest-light);background:var(--forest-pale);}
+.doc-dropzone-icon{font-size:36px;flex-shrink:0;}
+.doc-dropzone-text{text-align:left;}
+.doc-dropzone-title{font-size:15px;color:var(--forest);font-weight:500;margin-bottom:4px;}
+.doc-dropzone-sub{font-size:13px;color:var(--stone);font-weight:300;}
+.doc-content{
+  background:var(--white);border:1px solid rgba(0,0,0,.08);border-radius:8px;
+  padding:40px 44px;min-height:300px;
+  font-size:15px;line-height:1.85;color:var(--ink-soft);
+  outline:none;
+}
+.doc-content:empty::before{content:attr(data-ph);color:#c0bdb5;pointer-events:none;}
+.doc-content h1,.doc-content h2,.doc-content h3{font-family:'Playfair Display',serif;color:var(--forest);margin:20px 0 10px;}
+.doc-content h1{font-size:28px;}
+.doc-content h2{font-size:22px;}
+.doc-content h3{font-size:18px;}
+.doc-content p{margin-bottom:12px;}
+.doc-content ul,.doc-content ol{padding-left:20px;margin-bottom:12px;}
+
+/* ═══════════════════════════════════════════
+   SECTION 2 — CAMPAIGNS
+═══════════════════════════════════════════ */
+.campaigns-grid{display:flex;flex-direction:column;gap:12px;margin-bottom:20px;}
+
+.campaign-card{
+  background:var(--white);border:1px solid rgba(0,0,0,.08);border-radius:8px;
+  overflow:hidden;transition:box-shadow .2s;
+}
+.campaign-card:hover{box-shadow:0 4px 16px rgba(45,80,22,.1);}
+.campaign-header{
+  display:flex;align-items:center;gap:12px;padding:16px 20px;cursor:pointer;
+}
+.campaign-color-bar{width:4px;height:40px;border-radius:2px;flex-shrink:0;}
+.campaign-name-wrap{flex:1;}
+.campaign-name{
+  font-size:16px;font-weight:600;color:var(--forest);
+  outline:none;border-bottom:1px solid transparent;transition:border-color .15s;
+  background:transparent;border-top:none;border-left:none;border-right:none;
+  font-family:inherit;width:100%;cursor:pointer;
+}
+.campaign-name:focus{cursor:text;border-bottom-color:var(--gold);}
+.campaign-meta{font-size:12px;color:var(--stone);margin-top:2px;}
+.campaign-chevron{font-size:14px;color:var(--stone);transition:transform .2s;flex-shrink:0;}
+.campaign-card.open .campaign-chevron{transform:rotate(180deg);}
+.campaign-del-btn{background:none;border:none;cursor:pointer;color:#ccc;font-size:14px;padding:4px;transition:color .15s;flex-shrink:0;}
+.campaign-del-btn:hover{color:var(--red);}
+
+.campaign-body{display:none;padding:0 20px 20px;border-top:1px solid rgba(0,0,0,.06);}
+.campaign-card.open .campaign-body{display:block;}
+
+.campaign-section-title{
+  font-size:11px;letter-spacing:2px;text-transform:uppercase;
+  color:var(--stone);font-weight:600;margin:18px 0 10px;
+  display:flex;align-items:center;gap:8px;
+}
+.campaign-section-title::after{content:'';flex:1;height:1px;background:rgba(0,0,0,.08);}
+
+/* Stage rows */
+.stages-list{display:flex;flex-direction:column;gap:8px;margin-bottom:10px;}
+.stage-row{
+  display:grid;grid-template-columns:1fr auto auto auto auto auto;
+  align-items:center;gap:8px;
+  background:var(--forest-mist);border-radius:6px;padding:10px 12px;
+}
+.stage-name-input,.stage-date-input{
+  background:transparent;border:none;border-bottom:1px solid rgba(0,0,0,.12);
+  font-family:inherit;font-size:14px;color:var(--ink-soft);
+  padding:2px 4px;outline:none;transition:border-color .15s;
+}
+.stage-name-input{width:100%;}
+.stage-name-input:focus,.stage-date-input:focus{border-bottom-color:var(--gold);}
+.stage-date-input{width:90px;font-size:13px;}
+.stage-date-label{font-size:11px;color:var(--stone);white-space:nowrap;}
+.stage-del-btn{background:none;border:none;cursor:pointer;color:#ccc;font-size:13px;padding:2px;transition:color .15s;}
+.stage-del-btn:hover{color:var(--red);}
+
+/* Milestones */
+.milestones-list{display:flex;flex-direction:column;gap:6px;margin-bottom:8px;}
+.milestone-row{display:flex;align-items:center;gap:8px;background:var(--gold-pale);border-radius:6px;padding:8px 12px;}
+.milestone-name-input{flex:1;background:transparent;border:none;border-bottom:1px solid rgba(200,150,12,.3);font-family:inherit;font-size:14px;color:var(--ink-soft);padding:2px 4px;outline:none;}
+.milestone-name-input:focus{border-bottom-color:var(--gold);}
+.milestone-date-input{background:transparent;border:none;border-bottom:1px solid rgba(200,150,12,.3);font-family:inherit;font-size:13px;color:var(--ink-soft);width:90px;padding:2px 4px;outline:none;}
+.milestone-date-input:focus{border-bottom-color:var(--gold);}
+.milestone-del-btn{background:none;border:none;cursor:pointer;color:#ccc;font-size:13px;padding:2px;transition:color .15s;}
+.milestone-del-btn:hover{color:var(--red);}
+.milestone-icon{font-size:14px;flex-shrink:0;}
+
+/* Content blocks inside campaign */
+.content-blocks{display:flex;flex-direction:column;gap:10px;margin-bottom:10px;}
+.content-block{background:var(--white);border:1px solid rgba(0,0,0,.08);border-radius:6px;padding:16px 18px;position:relative;}
+.content-block:focus-within{border-color:var(--forest-light);box-shadow:0 0 0 3px rgba(74,124,36,.07);}
+.block-lbl{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--stone);font-weight:600;margin-bottom:6px;outline:none;cursor:text;border-bottom:1px solid transparent;transition:border-color .15s;display:inline-block;}
+.block-lbl:focus{border-bottom-color:var(--gold);}
+.block-txt{outline:none;font-size:14px;line-height:1.75;color:var(--ink-soft);min-height:40px;}
+.block-txt:empty::before{content:attr(data-ph);color:#c0bdb5;pointer-events:none;}
+.block-del{position:absolute;top:10px;right:10px;background:none;border:none;cursor:pointer;color:#ddd;font-size:12px;opacity:0;transition:opacity .15s,color .15s;}
+.content-block:hover .block-del{opacity:1;}
+.block-del:hover{color:var(--red);}
+
+.add-btn{display:inline-flex;align-items:center;gap:6px;background:none;border:2px dashed rgba(45,80,22,.2);color:var(--forest-mid);padding:8px 14px;border-radius:6px;font-size:13px;font-family:inherit;font-weight:500;cursor:pointer;transition:all .18s;}
+.add-btn:hover{border-color:var(--forest-light);background:var(--forest-mist);color:var(--forest);}
+.add-btn-gold{border-color:rgba(200,150,12,.3);color:var(--gold);}
+.add-btn-gold:hover{border-color:var(--gold);background:var(--gold-pale);color:#8a6500;}
+
+.add-campaign-btn{
+  display:flex;align-items:center;gap:8px;
+  background:var(--forest);color:#fff;border:none;
+  padding:12px 22px;border-radius:6px;font-family:inherit;font-size:14px;font-weight:500;
+  cursor:pointer;transition:background .18s;
+}
+.add-campaign-btn:hover{background:var(--forest-mid);}
+
+/* ═══════════════════════════════════════════
+   SECTION 3 — CALENDAR
+═══════════════════════════════════════════ */
+.cal-controls{display:flex;align-items:center;gap:12px;margin-bottom:28px;flex-wrap:wrap;}
+.cal-toggle{display:flex;background:var(--white);border:1px solid rgba(0,0,0,.1);border-radius:6px;overflow:hidden;}
+.cal-toggle-btn{background:none;border:none;font-family:inherit;font-size:13px;color:var(--stone);padding:8px 16px;cursor:pointer;transition:all .15s;}
+.cal-toggle-btn.active{background:var(--forest);color:#fff;}
+.cal-legend{display:flex;flex-wrap:wrap;gap:8px;margin-left:auto;}
+.cal-legend-item{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--stone);}
+.cal-legend-dot{width:10px;height:10px;border-radius:50%;}
+
+/* Month list */
+.month-list{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;}
+.month-card{
+  background:var(--white);border:1px solid rgba(0,0,0,.08);border-radius:8px;
+  padding:18px 20px;cursor:pointer;transition:all .2s;
+  display:flex;flex-direction:column;gap:8px;
+}
+.month-card:hover{border-color:var(--forest-light);box-shadow:0 4px 14px rgba(45,80,22,.1);transform:translateY(-2px);}
+.month-card-name{font-family:'Playfair Display',serif;font-size:18px;color:var(--forest);}
+.month-card-year{font-size:12px;color:var(--stone);}
+.month-card-dots{display:flex;flex-wrap:wrap;gap:4px;min-height:16px;}
+.month-dot{width:8px;height:8px;border-radius:50%;}
+
+/* Day grid */
+.cal-grid-view{display:none;}
+.cal-grid-view.active{display:block;}
+.cal-back-btn{display:inline-flex;align-items:center;gap:6px;background:none;border:none;font-family:inherit;font-size:14px;color:var(--forest-mid);cursor:pointer;margin-bottom:20px;padding:6px 0;transition:color .15s;}
+.cal-back-btn:hover{color:var(--forest);}
+.cal-month-title{font-family:'Playfair Display',serif;font-size:28px;color:var(--forest);margin-bottom:20px;}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;}
+.cal-day-header{text-align:center;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--stone);font-weight:600;padding:8px 4px;}
+.cal-day{
+  min-height:80px;background:var(--white);border:1px solid rgba(0,0,0,.07);
+  border-radius:6px;padding:6px;position:relative;
+  font-size:12px;color:var(--stone);
+}
+.cal-day.today{border-color:var(--gold);box-shadow:0 0 0 2px rgba(200,150,12,.2);}
+.cal-day.empty{background:transparent;border-color:transparent;}
+.cal-day-num{font-size:13px;font-weight:600;color:var(--ink-soft);margin-bottom:4px;}
+.cal-event{
+  font-size:10px;font-weight:500;padding:2px 5px;border-radius:3px;
+  margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  color:#fff;
+}
+
+/* List view */
+.cal-list-view{display:none;}
+.cal-list-view.active{display:block;}
+.cal-list-month{margin-bottom:28px;}
+.cal-list-month-title{font-family:'Playfair Display',serif;font-size:22px;color:var(--forest);margin-bottom:12px;padding-bottom:8px;border-bottom:2px solid var(--forest-pale);}
+.cal-list-item{
+  display:flex;align-items:flex-start;gap:12px;
+  padding:10px 14px;border-radius:6px;margin-bottom:6px;
+  background:var(--white);border:1px solid rgba(0,0,0,.06);
+}
+.cal-list-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;margin-top:4px;}
+.cal-list-date{font-size:13px;color:var(--stone);min-width:85px;font-weight:500;}
+.cal-list-title{font-size:14px;color:var(--ink-soft);}
+.cal-list-sub{font-size:12px;color:var(--stone);}
+
+/* ═══════════════════════════════════════════
+   SECTION 4 — BUDGET TRACKER
+═══════════════════════════════════════════ */
+.budget-dropzone{
+  border:2px dashed rgba(45,80,22,.25);border-radius:10px;
+  padding:32px;text-align:center;cursor:pointer;
+  background:var(--forest-mist);transition:all .2s;margin-bottom:28px;
+  display:flex;align-items:center;gap:20px;
+}
+.budget-dropzone:hover,.budget-dropzone.drag-over{border-color:var(--forest-light);background:var(--forest-pale);}
+.budget-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:24px;}
+.budget-stat{background:var(--white);border:1px solid rgba(0,0,0,.08);border-radius:8px;padding:16px 20px;}
+.budget-stat-label{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--stone);font-weight:600;margin-bottom:6px;}
+.budget-stat-value{font-family:'Playfair Display',serif;font-size:28px;color:var(--forest);}
+.budget-stat-value.over{color:var(--red);}
+.budget-table-wrap{background:var(--white);border:1px solid rgba(0,0,0,.08);border-radius:8px;overflow:hidden;}
+.budget-table{width:100%;border-collapse:collapse;font-size:14px;}
+.budget-table th{
+  background:var(--forest);color:#fff;
+  padding:11px 14px;text-align:left;font-size:11px;
+  letter-spacing:1.5px;text-transform:uppercase;font-weight:600;
+  white-space:nowrap;
+}
+.budget-table td{
+  padding:10px 14px;border-bottom:1px solid rgba(0,0,0,.06);
+  color:var(--ink-soft);
+}
+.budget-table tr:last-child td{border-bottom:none;}
+.budget-table tr:hover td{background:var(--forest-mist);}
+.budget-table td[contenteditable="true"]{outline:none;cursor:text;}
+.budget-table td[contenteditable="true"]:focus{background:var(--gold-pale);}
+.budget-add-row{
+  display:flex;align-items:center;gap:8px;padding:10px 14px;
+  background:var(--forest-mist);border-top:1px solid rgba(0,0,0,.06);
+  cursor:pointer;font-size:13px;color:var(--forest-mid);font-weight:500;
+  transition:background .15s;
+}
+.budget-add-row:hover{background:var(--forest-pale);}
+.budget-del-cell{text-align:center;}
+.row-del-btn{background:none;border:none;cursor:pointer;color:#ddd;font-size:13px;padding:2px 4px;transition:color .15s;}
+.row-del-btn:hover{color:var(--red);}
+.amount-cell{text-align:right;font-weight:500;}
+.status-cell select{background:transparent;border:none;font-family:inherit;font-size:13px;color:var(--ink-soft);cursor:pointer;outline:none;}
+
+/* BUDGET COLUMN HEADER EDIT */
+.budget-table th[contenteditable]{cursor:text;outline:none;}
+.budget-table th[contenteditable]:focus{background:var(--forest-mid);}
+
+/* IMPORT RESULT */
+.result-banner{margin-bottom:18px;padding:12px 16px;border-radius:6px;font-size:13px;display:none;line-height:1.6;}
+.result-banner.success{background:#e8f5e9;border:1px solid #a5d6a7;color:#2e7d32;display:block;}
+.result-banner.error{background:#fdecea;border:1px solid #ef9a9a;color:#b71c1c;display:block;}
+
+/* SAVE/LOAD SECTION */
+.save-section{background:var(--white);border-top:2px solid var(--forest-pale);padding:28px 52px;display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;}
+.save-section-left{font-size:13px;color:var(--stone);}
+.save-section-left strong{color:var(--ink-soft);}
+.save-section-right{display:flex;align-items:center;gap:10px;}
+.save-btn-primary{background:var(--gold);border:none;color:#fff;font-family:inherit;font-size:14px;font-weight:600;padding:11px 24px;border-radius:6px;cursor:pointer;transition:background .18s;}
+.save-btn-primary:hover{background:var(--gold-bright);}
+.load-dropzone-inline{
+  border:2px dashed rgba(200,150,12,.3);border-radius:6px;
+  padding:9px 16px;font-size:13px;color:var(--gold);font-weight:500;
+  cursor:pointer;transition:all .18s;
+}
+.load-dropzone-inline:hover{border-color:var(--gold);background:var(--gold-pale);}
+.load-input{display:none;}
+
+@media(max-width:700px){
+  .home-sections{grid-template-columns:1fr;}
+  .hero-content{padding:28px 24px 36px;}
+  .hero-title{font-size:32px;}
+  .page-body,.save-section{padding:24px 20px;}
+  .month-list{grid-template-columns:repeat(2,1fr);}
+  .budget-summary{grid-template-columns:1fr;}
+  #top-nav{padding:0 16px;}
+  .nav-sections{display:none;}
+}
+</style>
+</head>
+<body>
+
+<!-- TOP NAV -->
+<div id="top-nav">
+  <div class="nav-left">
+    <button class="bc-btn" onclick="goHome()">Home</button>
+    <span class="bc-sep" id="bc-sep" style="display:none">›</span>
+    <span class="bc-current" id="bc-current"></span>
+  </div>
+  <div class="nav-sections">
+    <button class="nav-sec-btn" onclick="openSection(0)">Overview</button>
+    <button class="nav-sec-btn" id="sec2-nav-btn" onclick="openSection(1)">Campaigns</button>
+    <button class="nav-sec-btn" onclick="openSection(2)">Calendar</button>
+    <button class="nav-sec-btn" onclick="openSection(3)">Budget</button>
+  </div>
+  <button class="nav-save-btn" onclick="saveData()">⬇ Save</button>
+</div>
+
+<!-- ═══ HOME ═══ -->
+<div id="home" class="screen active">
+  <div class="hero">
+    <div class="hero-banner" id="hero-banner" onclick="document.getElementById('banner-input').click()">
+      <div class="hero-banner-overlay"></div>
+      <div class="hero-banner-prompt" id="banner-prompt">
+        <span class="icon">🖼</span>
+        <span>Click to upload a banner image</span>
+      </div>
+    </div>
+    <input type="file" id="banner-input" accept="image/*">
+    <div class="hero-gold-bar"></div>
+    <div class="hero-content">
+      <div class="hero-label">Communications &amp; Engagement</div>
+      <div class="hero-title" contenteditable="true" data-ph="Plan Title" data-key="title" oninput="autoSaveField(this)">
+      </div>
+    </div>
+  </div>
+
+  <div class="home-desc-section">
+    <div class="home-desc-label">About This Plan</div>
+    <div class="home-desc-text" contenteditable="true" data-ph="Add a description of this communications and engagement plan — objectives, audience, timeframe, or any context useful for the reader." data-key="description" oninput="autoSaveField(this)"></div>
+  </div>
+
+  <div class="home-sections">
+    <div class="section-card" onclick="openSection(0)">
+      <div class="section-num">Section 01</div>
+      <div class="section-icon">📋</div>
+      <div class="section-name" contenteditable="true" data-ph="Overview" data-key="sec-name-0" oninput="autoSaveField(this);updateNavLabels()" onclick="event.stopPropagation()"></div>
+      <div class="section-desc">Strategy, context, and key information about this plan.</div>
+      <div class="section-arrow">→</div>
+    </div>
+    <div class="section-card" onclick="openSection(1)">
+      <div class="section-num">Section 02</div>
+      <div class="section-icon">🎯</div>
+      <div class="section-name" contenteditable="true" data-ph="Campaigns" data-key="sec-name-1" oninput="autoSaveField(this);updateNavLabels()" onclick="event.stopPropagation()"></div>
+      <div class="section-desc">Individual campaigns and projects, stages, milestones, and activities.</div>
+      <div class="section-arrow">→</div>
+    </div>
+    <div class="section-card" onclick="openSection(2)">
+      <div class="section-num">Section 03</div>
+      <div class="section-icon">📅</div>
+      <div class="section-name" contenteditable="true" data-ph="Calendar" data-key="sec-name-2" oninput="autoSaveField(this);updateNavLabels()" onclick="event.stopPropagation()"></div>
+      <div class="section-desc">Visual calendar July 2026 – June 2027, auto-filled from campaign dates.</div>
+      <div class="section-arrow">→</div>
+    </div>
+    <div class="section-card" onclick="openSection(3)">
+      <div class="section-num">Section 04</div>
+      <div class="section-icon">💰</div>
+      <div class="section-name" contenteditable="true" data-ph="Budget Tracker" data-key="sec-name-3" oninput="autoSaveField(this);updateNavLabels()" onclick="event.stopPropagation()"></div>
+      <div class="section-desc">Budget and spend tracking, importable from Excel.</div>
+      <div class="section-arrow">→</div>
+    </div>
+  </div>
+
+  <div class="save-section">
+    <div class="save-section-left">
+      <strong>Save &amp; Share:</strong> Download a self-contained HTML file with all your data baked in — open it anywhere, share with anyone.<br>
+      <strong>Load:</strong> Drop a previously saved <kbd style="background:rgba(0,0,0,.08);border-radius:3px;padding:1px 5px;font-size:12px;">.json</kbd> file to restore your progress.
+    </div>
+    <div class="save-section-right">
+      <div class="load-dropzone-inline" id="load-dz" onclick="document.getElementById('load-input').click()">📂 Load .json save</div>
+      <input type="file" id="load-input" class="load-input" accept=".json">
+      <button class="save-btn-primary" onclick="saveData()">⬇ Save Progress</button>
+    </div>
+  </div>
+  <div class="result-banner" id="load-result"></div>
+</div>
+
+<!-- ═══ SECTION 1: OVERVIEW ═══ -->
+<div id="sec-0" class="screen">
+  <div class="page-header">
+    <div class="page-eyebrow">Section 01</div>
+    <div class="page-title" contenteditable="true" data-ph="Overview" data-key="sec-name-0" oninput="autoSaveField(this);updateNavLabels()"></div>
+  </div>
+  <div class="page-body">
+    <div class="doc-dropzone" id="overview-dz" onclick="document.getElementById('overview-input').click()">
+      <div class="doc-dropzone-icon">📄</div>
+      <div class="doc-dropzone-text">
+        <div class="doc-dropzone-title">Import from Word Document</div>
+        <div class="doc-dropzone-sub">Drop a .docx file here or click to browse — Heading 2 → section title, body text → content. Fully editable after import.</div>
+      </div>
+    </div>
+    <input type="file" id="overview-input" accept=".docx" style="display:none">
+    <div class="result-banner" id="overview-result"></div>
+    <div class="doc-content" id="overview-content" contenteditable="true" data-ph="Start writing your overview here, or import a Word document above…" data-key="overview-content" oninput="autoSaveField(this)"></div>
+  </div>
+</div>
+
+<!-- ═══ SECTION 2: CAMPAIGNS ═══ -->
+<div id="sec-1" class="screen">
+  <div class="page-header">
+    <div class="page-eyebrow">Section 02</div>
+    <div class="page-title" contenteditable="true" data-ph="Campaigns" data-key="sec-name-1" oninput="autoSaveField(this);updateNavLabels()"></div>
+  </div>
+  <div class="page-body">
+    <div class="campaigns-grid" id="campaigns-grid"></div>
+    <button class="add-campaign-btn" onclick="addCampaign()">＋ Add Campaign / Project</button>
+  </div>
+</div>
+
+<!-- ═══ SECTION 3: CALENDAR ═══ -->
+<div id="sec-2" class="screen">
+  <div class="page-header">
+    <div class="page-eyebrow">Section 03</div>
+    <div class="page-title" contenteditable="true" data-ph="Calendar" data-key="sec-name-2" oninput="autoSaveField(this);updateNavLabels()"></div>
+  </div>
+  <div class="page-body" style="max-width:1200px;">
+    <div class="cal-controls">
+      <div class="cal-toggle">
+        <button class="cal-toggle-btn active" id="cal-btn-list" onclick="setCalView('list')">Month List</button>
+        <button class="cal-toggle-btn" id="cal-btn-grid" onclick="setCalView('grid')">Day Grid</button>
+      </div>
+      <div class="cal-legend" id="cal-legend"></div>
+    </div>
+
+    <!-- Month list -->
+    <div id="cal-list-outer">
+      <div class="month-list" id="month-list"></div>
+    </div>
+
+    <!-- Day grid (shown when a month is clicked) -->
+    <div id="cal-grid-outer" style="display:none;">
+      <button class="cal-back-btn" onclick="showMonthList()">← Back to months</button>
+      <div class="cal-month-title" id="cal-month-title"></div>
+      <div class="cal-grid" id="cal-grid"></div>
+    </div>
+
+    <!-- List view (toggle) -->
+    <div id="cal-agenda-outer" style="display:none;">
+      <div id="cal-agenda"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ SECTION 4: BUDGET ═══ -->
+<div id="sec-3" class="screen">
+  <div class="page-header">
+    <div class="page-eyebrow">Section 04</div>
+    <div class="page-title" contenteditable="true" data-ph="Budget Tracker" data-key="sec-name-3" oninput="autoSaveField(this);updateNavLabels()"></div>
+  </div>
+  <div class="page-body" style="max-width:1200px;">
+    <div class="budget-dropzone" id="budget-dz" onclick="document.getElementById('budget-input').click()">
+      <div class="doc-dropzone-icon">📊</div>
+      <div class="doc-dropzone-text">
+        <div class="doc-dropzone-title">Import from Excel</div>
+        <div class="doc-dropzone-sub">Drop a .xlsx or .xls file — columns are auto-detected and the table is fully editable within the tool.</div>
+      </div>
+    </div>
+    <input type="file" id="budget-input" accept=".xlsx,.xls,.csv" style="display:none">
+    <div class="result-banner" id="budget-result"></div>
+    <div class="budget-summary" id="budget-summary" style="display:none;"></div>
+    <div class="budget-table-wrap" id="budget-table-wrap" style="display:none;">
+      <table class="budget-table" id="budget-table">
+        <thead><tr id="budget-header-row"></tr></thead>
+        <tbody id="budget-body"></tbody>
+      </table>
+      <div class="budget-add-row" onclick="addBudgetRow()">＋ Add row</div>
+    </div>
+  </div>
+</div>
+
+<div class="save-toast" id="save-toast">✓ Auto-saved</div>
+
+<script>
+
+// ═══════════════════════════════════════════════════════
+//  STORAGE
+// ═══════════════════════════════════════════════════════
+let db = {};
+(function(){
+  if(typeof SAVED_DB !== 'undefined' && SAVED_DB){
+    db = SAVED_DB;
+    try{ localStorage.setItem('cep1', JSON.stringify(db)); }catch(e){}
+    return;
+  }
+  try{ db = JSON.parse(localStorage.getItem('cep1') || '{}'); }catch(e){}
+})();
+
+function dbGet(k, fb){ const v = db[k]; return (v===undefined||v===null) ? fb : v; }
+function dbSet(k, v){
+  db[k] = v;
+  try{ localStorage.setItem('cep1', JSON.stringify(db)); }catch(e){}
+}
+
+let _toastTimer;
+function flashToast(msg){
+  const t = document.getElementById('save-toast');
+  t.textContent = msg || '✓ Auto-saved';
+  t.classList.add('show');
+  clearTimeout(_toastTimer);
+  _toastTimer = setTimeout(() => t.classList.remove('show'), 1600);
+}
+
+function autoSaveField(el){
+  const key = el.getAttribute('data-key');
+  if(!key) return;
+  dbSet(key, el.innerHTML);
+  flashToast('✓ Saved');
+}
+
+// ═══════════════════════════════════════════════════════
+//  CAMPAIGN COLOURS
+// ═══════════════════════════════════════════════════════
+const PALETTE = ['#2d6e4e','#7b3f00','#1a4a7a','#5a1a6e','#7a4a00','#1a5a4a','#6e2d2d','#2d4a6e','#4a6e2d','#6e4a2d'];
+function getCampaignColor(idx){ return PALETTE[idx % PALETTE.length]; }
+
+// ═══════════════════════════════════════════════════════
+//  NAVIGATION
+// ═══════════════════════════════════════════════════════
+let currentSection = null;
+
+function goHome(){
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('home').classList.add('active');
+  document.getElementById('top-nav').classList.remove('visible');
+  document.querySelectorAll('.nav-sec-btn').forEach(b => b.classList.remove('active'));
+  currentSection = null;
+  window.scrollTo(0,0);
+}
+
+function openSection(idx){
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('sec-'+idx).classList.add('active');
+  document.getElementById('top-nav').classList.add('visible');
+  document.querySelectorAll('.nav-sec-btn').forEach((b,i) => b.classList.toggle('active', i===idx));
+  document.getElementById('bc-sep').style.display = '';
+  document.getElementById('bc-current').textContent = getSectionName(idx);
+  currentSection = idx;
+  window.scrollTo(0,0);
+
+  if(idx === 2) renderCalendar();
+  if(idx === 3) renderBudgetTable();
+}
+
+function getSectionName(idx){
+  const defaults = ['Overview','Campaigns','Calendar','Budget Tracker'];
+  return dbGet('sec-name-'+idx, '') || defaults[idx];
+}
+
+function updateNavLabels(){
+  const btns = document.querySelectorAll('.nav-sec-btn');
+  [0,1,2,3].forEach(i => {
+    btns[i].textContent = getSectionName(i);
+  });
+  if(currentSection !== null){
+    document.getElementById('bc-current').textContent = getSectionName(currentSection);
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+//  FIELD RESTORE ON LOAD
+// ═══════════════════════════════════════════════════════
+function restoreFields(){
+  document.querySelectorAll('[data-key]').forEach(el => {
+    const val = dbGet(el.getAttribute('data-key'), null);
+    if(val !== null) el.innerHTML = val;
+  });
+  updateNavLabels();
+}
+
+// ═══════════════════════════════════════════════════════
+//  BANNER IMAGE
+// ═══════════════════════════════════════════════════════
+document.getElementById('banner-input').addEventListener('change', e => {
+  const file = e.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    dbSet('banner-img', ev.target.result);
+    applyBanner(ev.target.result);
+  };
+  reader.readAsDataURL(file);
+});
+
+function applyBanner(src){
+  const banner = document.getElementById('hero-banner');
+  let img = banner.querySelector('img');
+  if(!img){ img = document.createElement('img'); banner.prepend(img); }
+  img.src = src;
+  document.getElementById('banner-prompt').style.opacity = '0';
+}
+
+// ═══════════════════════════════════════════════════════
+//  SECTION 1 — WORD IMPORT
+// ═══════════════════════════════════════════════════════
+const overviewDz = document.getElementById('overview-dz');
+overviewDz.addEventListener('dragover', e => { e.preventDefault(); overviewDz.classList.add('drag-over'); });
+overviewDz.addEventListener('dragleave', () => overviewDz.classList.remove('drag-over'));
+overviewDz.addEventListener('drop', e => { e.preventDefault(); overviewDz.classList.remove('drag-over'); importWord(e.dataTransfer.files[0]); });
+document.getElementById('overview-input').addEventListener('change', e => { if(e.target.files[0]) importWord(e.target.files[0]); });
+
+async function importWord(file){
+  if(!file || !file.name.match(/\.docx?$/i)){
+    showBanner('overview-result','error','Please select a .docx file.');
+    return;
+  }
+  try{
+    const ab = await file.arrayBuffer();
+    const result = await mammoth.convertToHtml({arrayBuffer: ab});
+    const content = document.getElementById('overview-content');
+    content.innerHTML = result.value;
+    dbSet('overview-content', result.value);
+    showBanner('overview-result','success','✓ Document imported — fully editable below.');
+  }catch(err){
+    showBanner('overview-result','error','Could not read file: '+err.message);
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+//  SECTION 2 — CAMPAIGNS
+// ═══════════════════════════════════════════════════════
+function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,6); }
+
+function getCampaigns(){ return dbGet('campaigns', []); }
+function saveCampaigns(arr){ dbSet('campaigns', arr); }
+
+function addCampaign(){
+  const camps = getCampaigns();
+  const c = {
+    id: uid(),
+    name: 'New Campaign',
+    stages: [],
+    milestones: [],
+    blocks: [{id:uid(), label:'Objective', text:''},{id:uid(), label:'Audience', text:''},{id:uid(), label:'Key Messages', text:''}]
+  };
+  camps.push(c);
+  saveCampaigns(camps);
+  renderCampaigns();
+  // Scroll to and open the new one
+  setTimeout(() => {
+    const el = document.getElementById('camp-'+c.id);
+    if(el){ el.scrollIntoView({behavior:'smooth',block:'center'}); toggleCampaign(c.id); }
+  }, 80);
+}
+
+function deleteCampaign(id){
+  saveCampaigns(getCampaigns().filter(c => c.id !== id));
+  renderCampaigns();
+}
+
+function toggleCampaign(id){
+  const el = document.getElementById('camp-'+id);
+  if(el) el.classList.toggle('open');
+}
+
+function renderCampaigns(){
+  const grid = document.getElementById('campaigns-grid');
+  const camps = getCampaigns();
+  if(!camps.length){
+    grid.innerHTML = '<p style="font-size:14px;color:var(--stone);font-weight:300;padding:4px 0 16px;">No campaigns yet — add one below.</p>';
+    return;
+  }
+  grid.innerHTML = camps.map((c, ci) => {
+    const color = getCampaignColor(ci);
+    const stageCount = (c.stages||[]).length;
+    const mileCount  = (c.milestones||[]).length;
+    const meta = [stageCount+' stage'+(stageCount!==1?'s':''), mileCount+' milestone'+(mileCount!==1?'s':'')].join(' · ');
+
+    const stagesHTML = (c.stages||[]).map(s => `
+      <div class="stage-row" id="stage-${s.id}">
+        <input class="stage-name-input" value="${esc(s.name)}" placeholder="Stage name"
+          onchange="updateStage('${c.id}','${s.id}','name',this.value)">
+        <span class="stage-date-label">Start</span>
+        <input class="stage-date-input" value="${esc(s.start||'')}" placeholder="DD/MM/YY"
+          onchange="updateStage('${c.id}','${s.id}','start',this.value)">
+        <span class="stage-date-label">End</span>
+        <input class="stage-date-input" value="${esc(s.end||'')}" placeholder="DD/MM/YY"
+          onchange="updateStage('${c.id}','${s.id}','end',this.value)">
+        <button class="stage-del-btn" onclick="deleteStage('${c.id}','${s.id}')">✕</button>
+      </div>`).join('');
+
+    const milesHTML = (c.milestones||[]).map(m => `
+      <div class="milestone-row" id="ms-${m.id}">
+        <span class="milestone-icon">⭐</span>
+        <input class="milestone-name-input" value="${esc(m.name)}" placeholder="Milestone name"
+          onchange="updateMilestone('${c.id}','${m.id}','name',this.value)">
+        <input class="milestone-date-input" value="${esc(m.date||'')}" placeholder="DD/MM/YY"
+          onchange="updateMilestone('${c.id}','${m.id}','date',this.value)">
+        <button class="milestone-del-btn" onclick="deleteMilestone('${c.id}','${m.id}')">✕</button>
+      </div>`).join('');
+
+    const blocksHTML = (c.blocks||[]).map(b => `
+      <div class="content-block">
+        <div class="block-lbl" contenteditable="true" spellcheck="false"
+          onblur="updateBlock('${c.id}','${b.id}','label',this.innerText)"
+        >${esc(b.label)}</div>
+        <div class="block-txt" contenteditable="true" data-ph="Add notes…"
+          oninput="updateBlock('${c.id}','${b.id}','text',this.innerHTML)"
+        >${b.text||''}</div>
+        <button class="block-del" onclick="deleteBlock('${c.id}','${b.id}')">Remove</button>
+      </div>`).join('');
+
+    return `
+      <div class="campaign-card" id="camp-${c.id}">
+        <div class="campaign-header" onclick="toggleCampaign('${c.id}')">
+          <div class="campaign-color-bar" style="background:${color}"></div>
+          <div class="campaign-name-wrap">
+            <input class="campaign-name" value="${esc(c.name)}" placeholder="Campaign name"
+              onclick="event.stopPropagation()"
+              onchange="updateCampaignName('${c.id}',this.value)">
+            <div class="campaign-meta">${meta}</div>
+          </div>
+          <span class="campaign-chevron">▾</span>
+          <button class="campaign-del-btn" onclick="event.stopPropagation();deleteCampaign('${c.id}')">✕</button>
+        </div>
+        <div class="campaign-body">
+          <div class="campaign-section-title">Stages</div>
+          <div class="stages-list" id="stages-${c.id}">${stagesHTML}</div>
+          <button class="add-btn" onclick="addStage('${c.id}')">＋ Add stage</button>
+
+          <div class="campaign-section-title" style="margin-top:20px;">Milestones</div>
+          <div class="milestones-list" id="ms-list-${c.id}">${milesHTML}</div>
+          <button class="add-btn add-btn-gold" onclick="addMilestone('${c.id}')">＋ Add milestone</button>
+
+          <div class="campaign-section-title" style="margin-top:20px;">Content</div>
+          <div class="content-blocks" id="blocks-${c.id}">${blocksHTML}</div>
+          <button class="add-btn" onclick="addBlock('${c.id}')">＋ Add section</button>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function updateCampaignName(cid, val){
+  const camps = getCampaigns();
+  const c = camps.find(x => x.id===cid); if(!c) return;
+  c.name = val; saveCampaigns(camps);
+}
+
+function updateStage(cid, sid, field, val){
+  const camps = getCampaigns();
+  const c = camps.find(x => x.id===cid); if(!c) return;
+  const s = (c.stages||[]).find(x => x.id===sid); if(!s) return;
+  s[field] = val; saveCampaigns(camps);
+}
+
+function addStage(cid){
+  const camps = getCampaigns();
+  const c = camps.find(x => x.id===cid); if(!c) return;
+  if(!c.stages) c.stages=[];
+  c.stages.push({id:uid(),name:'New Stage',start:'',end:''});
+  saveCampaigns(camps); renderCampaigns();
+  document.getElementById('camp-'+cid)?.classList.add('open');
+}
+
+function deleteStage(cid, sid){
+  const camps = getCampaigns();
+  const c = camps.find(x => x.id===cid); if(!c) return;
+  c.stages = (c.stages||[]).filter(s => s.id!==sid);
+  saveCampaigns(camps); renderCampaigns();
+  document.getElementById('camp-'+cid)?.classList.add('open');
+}
+
+function updateMilestone(cid, mid, field, val){
+  const camps = getCampaigns();
+  const c = camps.find(x => x.id===cid); if(!c) return;
+  const m = (c.milestones||[]).find(x => x.id===mid); if(!m) return;
+  m[field] = val; saveCampaigns(camps);
+}
+
+function addMilestone(cid){
+  const camps = getCampaigns();
+  const c = camps.find(x => x.id===cid); if(!c) return;
+  if(!c.milestones) c.milestones=[];
+  c.milestones.push({id:uid(),name:'New Milestone',date:''});
+  saveCampaigns(camps); renderCampaigns();
+  document.getElementById('camp-'+cid)?.classList.add('open');
+}
+
+function deleteMilestone(cid, mid){
+  const camps = getCampaigns();
+  const c = camps.find(x => x.id===cid); if(!c) return;
+  c.milestones = (c.milestones||[]).filter(m => m.id!==mid);
+  saveCampaigns(camps); renderCampaigns();
+  document.getElementById('camp-'+cid)?.classList.add('open');
+}
+
+function updateBlock(cid, bid, field, val){
+  const camps = getCampaigns();
+  const c = camps.find(x => x.id===cid); if(!c) return;
+  const b = (c.blocks||[]).find(x => x.id===bid); if(!b) return;
+  b[field] = val; saveCampaigns(camps);
+}
+
+function addBlock(cid){
+  const camps = getCampaigns();
+  const c = camps.find(x => x.id===cid); if(!c) return;
+  if(!c.blocks) c.blocks=[];
+  c.blocks.push({id:uid(),label:'Section',text:''});
+  saveCampaigns(camps); renderCampaigns();
+  document.getElementById('camp-'+cid)?.classList.add('open');
+}
+
+function deleteBlock(cid, bid){
+  const camps = getCampaigns();
+  const c = camps.find(x => x.id===cid); if(!c) return;
+  c.blocks = (c.blocks||[]).filter(b => b.id!==bid);
+  saveCampaigns(camps); renderCampaigns();
+  document.getElementById('camp-'+cid)?.classList.add('open');
+}
+
+// ═══════════════════════════════════════════════════════
+//  SECTION 3 — CALENDAR
+// ═══════════════════════════════════════════════════════
+// Jul 2026 – Jun 2027
+const CAL_MONTHS = [
+  {y:2026,m:7},{y:2026,m:8},{y:2026,m:9},{y:2026,m:10},{y:2026,m:11},{y:2026,m:12},
+  {y:2027,m:1},{y:2027,m:2},{y:2027,m:3},{y:2027,m:4},{y:2027,m:5},{y:2027,m:6}
+];
+const MONTH_NAMES = ['','January','February','March','April','May','June','July','August','September','October','November','December'];
+const SHORT_MONTHS = ['','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+let calView = 'list'; // 'list' or 'agenda'
+let calGridMonth = null;
+
+function parseDate(str){
+  if(!str || !str.trim()) return null;
+  const p = str.trim().split('/');
+  if(p.length < 2) return null;
+  const d = parseInt(p[0]), mo = parseInt(p[1]);
+  let y = p[2] ? parseInt(p[2]) : null;
+  if(!y) return null;
+  if(y < 100) y += 2000;
+  if(isNaN(d)||isNaN(mo)||isNaN(y)) return null;
+  return new Date(y, mo-1, d);
+}
+
+function getCalEvents(){
+  const camps = getCampaigns();
+  const events = [];
+  camps.forEach((c, ci) => {
+    const color = getCampaignColor(ci);
+    (c.stages||[]).forEach(s => {
+      if(s.start){
+        const sd = parseDate(s.start), ed = parseDate(s.end||s.start);
+        if(sd) events.push({type:'stage',campName:c.name,label:s.name,start:sd,end:ed||sd,color});
+      }
+    });
+    (c.milestones||[]).forEach(m => {
+      if(m.date){
+        const d = parseDate(m.date);
+        if(d) events.push({type:'milestone',campName:c.name,label:m.name,start:d,end:d,color});
+      }
+    });
+  });
+  return events;
+}
+
+function setCalView(v){
+  calView = v;
+  document.getElementById('cal-btn-list').classList.toggle('active', v==='list');
+  document.getElementById('cal-btn-grid').classList.toggle('active', v==='grid');
+  renderCalendar();
+}
+
+function renderCalendar(){
+  renderCalLegend();
+  if(calGridMonth){
+    showMonthGrid(calGridMonth.y, calGridMonth.m);
+    return;
+  }
+  if(calView === 'list'){
+    renderMonthList(); renderAgenda(); 
+    document.getElementById('cal-list-outer').style.display = '';
+    document.getElementById('cal-agenda-outer').style.display = 'none';
+    document.getElementById('cal-grid-outer').style.display = 'none';
+  } else {
+    renderAgenda();
+    document.getElementById('cal-list-outer').style.display = 'none';
+    document.getElementById('cal-grid-outer').style.display = 'none';
+    document.getElementById('cal-agenda-outer').style.display = '';
+  }
+}
+
+function renderCalLegend(){
+  const camps = getCampaigns();
+  const legend = document.getElementById('cal-legend');
+  legend.innerHTML = camps.map((c,ci) =>
+    `<div class="cal-legend-item"><div class="cal-legend-dot" style="background:${getCampaignColor(ci)}"></div>${esc(c.name)}</div>`
+  ).join('');
+}
+
+function renderMonthList(){
+  const events = getCalEvents();
+  const list = document.getElementById('month-list');
+  list.innerHTML = CAL_MONTHS.map(({y,m}) => {
+    const monthEvents = events.filter(e => {
+      const d = e.start;
+      return d.getFullYear()===y && (d.getMonth()+1)===m;
+    });
+    const dots = [...new Set(monthEvents.map(e=>e.color))].map(col =>
+      `<div class="month-dot" style="background:${col}"></div>`).join('');
+    return `
+      <div class="month-card" onclick="showMonthGrid(${y},${m})">
+        <div class="month-card-name">${MONTH_NAMES[m]}</div>
+        <div class="month-card-year">${y}</div>
+        <div class="month-card-dots">${dots||'<span style="font-size:11px;color:#ccc;">No events</span>'}</div>
+      </div>`;
+  }).join('');
+}
+
+function showMonthGrid(y, m){
+  calGridMonth = {y, m};
+  document.getElementById('cal-list-outer').style.display = 'none';
+  document.getElementById('cal-agenda-outer').style.display = 'none';
+  document.getElementById('cal-grid-outer').style.display = '';
+
+  document.getElementById('cal-month-title').textContent = MONTH_NAMES[m]+' '+y;
+
+  const events = getCalEvents();
+  const daysInMonth = new Date(y, m, 0).getDate();
+  const firstDay = new Date(y, m-1, 1).getDay(); // 0=Sun
+
+  const grid = document.getElementById('cal-grid');
+  const dayHeaders = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].map(d =>
+    `<div class="cal-day-header">${d}</div>`).join('');
+
+  let cells = '';
+  // Empty cells before first day
+  for(let i=0;i<firstDay;i++) cells += '<div class="cal-day empty"></div>';
+
+  for(let d=1;d<=daysInMonth;d++){
+    const date = new Date(y,m-1,d);
+    const dayEvents = events.filter(e => {
+      const s=e.start, en=e.end;
+      return date>=new Date(s.getFullYear(),s.getMonth(),s.getDate()) &&
+             date<=new Date(en.getFullYear(),en.getMonth(),en.getDate());
+    });
+    const evHTML = dayEvents.map(e =>
+      `<div class="cal-event" style="background:${e.color}">${esc(e.label)}</div>`).join('');
+    const today = new Date(); const isToday = date.toDateString()===today.toDateString();
+    cells += `<div class="cal-day${isToday?' today':''}"><div class="cal-day-num">${d}</div>${evHTML}</div>`;
+  }
+
+  grid.innerHTML = dayHeaders + cells;
+}
+
+function showMonthList(){
+  calGridMonth = null;
+  document.getElementById('cal-grid-outer').style.display = 'none';
+  if(calView==='list'){
+    renderMonthList();
+    document.getElementById('cal-list-outer').style.display = '';
+  } else {
+    document.getElementById('cal-agenda-outer').style.display = '';
+  }
+}
+
+function renderAgenda(){
+  const events = getCalEvents();
+  const agenda = document.getElementById('cal-agenda');
+  let html = '';
+  CAL_MONTHS.forEach(({y,m}) => {
+    const monthEvents = events.filter(e => {
+      const d = e.start;
+      return d.getFullYear()===y && (d.getMonth()+1)===m;
+    }).sort((a,b) => a.start-b.start);
+    if(!monthEvents.length) return;
+    html += `<div class="cal-list-month">
+      <div class="cal-list-month-title">${MONTH_NAMES[m]} ${y}</div>
+      ${monthEvents.map(e => `
+        <div class="cal-list-item">
+          <div class="cal-list-dot" style="background:${e.color}"></div>
+          <div>
+            <div class="cal-list-date">${e.start.getDate()} ${SHORT_MONTHS[e.start.getMonth()+1]}${e.end&&e.end.getTime()!==e.start.getTime()?' – '+e.end.getDate()+' '+SHORT_MONTHS[e.end.getMonth()+1]:''}</div>
+            <div class="cal-list-title">${esc(e.label)}</div>
+            <div class="cal-list-sub">${esc(e.campName)} · ${e.type==='milestone'?'Milestone':'Stage'}</div>
+          </div>
+        </div>`).join('')}
+    </div>`;
+  });
+  agenda.innerHTML = html || '<p style="font-size:14px;color:var(--stone);font-weight:300;">No events yet — add stages and milestones in the Campaigns section.</p>';
+}
+
+// ═══════════════════════════════════════════════════════
+//  SECTION 4 — BUDGET TRACKER
+// ═══════════════════════════════════════════════════════
+let budgetColumns = dbGet('budget-cols', ['Category','Description','Budgeted','Actual','Status','Notes']);
+let budgetRows    = dbGet('budget-rows', []);
+
+const budgetDz = document.getElementById('budget-dz');
+budgetDz.addEventListener('dragover', e => { e.preventDefault(); budgetDz.classList.add('drag-over'); });
+budgetDz.addEventListener('dragleave', () => budgetDz.classList.remove('drag-over'));
+budgetDz.addEventListener('drop', e => { e.preventDefault(); budgetDz.classList.remove('drag-over'); importExcel(e.dataTransfer.files[0]); });
+document.getElementById('budget-input').addEventListener('change', e => { if(e.target.files[0]) importExcel(e.target.files[0]); });
+
+function importExcel(file){
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e){
+    try{
+      const wb = XLSX.read(e.target.result, {type:'binary'});
+      const ws = wb.Sheets[wb.SheetNames[0]];
+      const data = XLSX.utils.sheet_to_json(ws, {header:1, defval:''});
+      if(!data.length){ showBanner('budget-result','error','Spreadsheet appears empty.'); return; }
+      budgetColumns = data[0].map(String);
+      budgetRows = data.slice(1).map(row => budgetColumns.map((_,i) => String(row[i]||'')));
+      dbSet('budget-cols', budgetColumns);
+      dbSet('budget-rows', budgetRows);
+      renderBudgetTable();
+      showBanner('budget-result','success',`✓ Imported ${budgetRows.length} rows with ${budgetColumns.length} columns — fully editable below.`);
+    }catch(err){
+      showBanner('budget-result','error','Could not read file: '+err.message);
+    }
+  };
+  reader.readAsBinaryString(file);
+}
+
+function renderBudgetTable(){
+  budgetColumns = dbGet('budget-cols', ['Category','Description','Budgeted','Actual','Status','Notes']);
+  budgetRows    = dbGet('budget-rows', []);
+
+  const headerRow = document.getElementById('budget-header-row');
+  headerRow.innerHTML = budgetColumns.map((col,ci) =>
+    `<th contenteditable="true" spellcheck="false"
+      onblur="updateBudgetCol(${ci},this.innerText)">${esc(col)}</th>`
+  ).join('') + '<th style="width:36px;"></th>';
+
+  const tbody = document.getElementById('budget-body');
+  tbody.innerHTML = budgetRows.map((row,ri) =>
+    `<tr>${row.map((cell,ci) =>
+      `<td contenteditable="true" spellcheck="false"
+        oninput="updateBudgetCell(${ri},${ci},this.innerText)">${esc(cell)}</td>`
+    ).join('')}<td class="budget-del-cell"><button class="row-del-btn" onclick="deleteBudgetRow(${ri})">✕</button></td></tr>`
+  ).join('');
+
+  document.getElementById('budget-table-wrap').style.display = budgetRows.length||budgetColumns.length ? '' : 'none';
+  document.getElementById('budget-summary').style.display = 'none';
+}
+
+function updateBudgetCol(ci, val){
+  budgetColumns[ci] = val;
+  dbSet('budget-cols', budgetColumns);
+}
+
+function updateBudgetCell(ri, ci, val){
+  budgetRows[ri][ci] = val;
+  dbSet('budget-rows', budgetRows);
+  flashToast('✓ Saved');
+}
+
+function addBudgetRow(){
+  budgetRows.push(budgetColumns.map(() => ''));
+  dbSet('budget-rows', budgetRows);
+  renderBudgetTable();
+}
+
+function deleteBudgetRow(ri){
+  budgetRows.splice(ri, 1);
+  dbSet('budget-rows', budgetRows);
+  renderBudgetTable();
+}
+
+// ═══════════════════════════════════════════════════════
+//  SAVE / LOAD (JSON)
+// ═══════════════════════════════════════════════════════
+function saveData(){
+  const payload = JSON.stringify(db, null, 2);
+  const blob = new Blob([payload], {type:'application/json'});
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href = url; a.download = 'comms-plan-save.json';
+  document.body.appendChild(a); a.click();
+  setTimeout(() => { URL.revokeObjectURL(url); a.remove(); }, 1000);
+  flashToast('✓ Save file downloaded');
+}
+
+const loadDz = document.getElementById('load-dz');
+const loadInput = document.getElementById('load-input');
+loadDz.addEventListener('dragover', e => { e.preventDefault(); loadDz.style.borderColor='var(--gold)'; });
+loadDz.addEventListener('dragleave', () => loadDz.style.borderColor='');
+loadDz.addEventListener('drop', e => { e.preventDefault(); loadDz.style.borderColor=''; loadJSON(e.dataTransfer.files[0]); });
+loadInput.addEventListener('change', e => { if(e.target.files[0]) loadJSON(e.target.files[0]); });
+
+function loadJSON(file){
+  if(!file||!file.name.endsWith('.json')){ showBanner('load-result','error','Please select a .json save file.'); return; }
+  const reader = new FileReader();
+  reader.onload = function(e){
+    try{
+      db = JSON.parse(e.target.result);
+      localStorage.setItem('cep1', JSON.stringify(db));
+      showBanner('load-result','success','✓ Save file loaded — refreshing...');
+      setTimeout(() => location.reload(), 800);
+    }catch(err){ showBanner('load-result','error','Could not read file: '+err.message); }
+  };
+  reader.readAsText(file);
+}
+
+document.addEventListener('keydown', e => {
+  if((e.ctrlKey||e.metaKey) && e.key==='s'){ e.preventDefault(); saveData(); }
+});
+
+// ═══════════════════════════════════════════════════════
+//  UTILITIES
+// ═══════════════════════════════════════════════════════
+function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+function showBanner(id, type, msg){
+  const el = document.getElementById(id);
+  if(!el) return;
+  el.className = 'result-banner '+type;
+  el.innerHTML = msg;
+}
+
+// ═══════════════════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════════════════
+restoreFields();
+renderCampaigns();
+renderBudgetTable();
+
+// Restore banner image
+const savedBanner = dbGet('banner-img', null);
+if(savedBanner) applyBanner(savedBanner);
+
+</script>
+</body>
+</html>
