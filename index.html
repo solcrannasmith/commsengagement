@@ -21,8 +21,7 @@ body{font-family:'Source Sans 3',sans-serif;background:var(--parchment);color:va
 body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");pointer-events:none;z-index:0;}
 
 /* ── SCREENS ── */
-.screen{display:none;position:relative;z-index:1;min-height:100vh;}
-.screen.active{display:block;}
+.screen{display:none;position:fixed;inset:0;z-index:1;overflow-y:auto;overflow-x:hidden;background:var(--parchment);}.screen.active{display:block;}#home{z-index:1;}
 
 /* ── STATUS BAR ── */
 #status-bar{
@@ -46,6 +45,7 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
   height:52px;padding:0 40px;
   display:none;align-items:center;justify-content:space-between;
   border-bottom:3px solid var(--gold);
+  flex-shrink:0;
 }
 #top-nav.visible{display:flex;}
 .nav-left{display:flex;align-items:center;gap:6px;}
@@ -563,12 +563,14 @@ function showBanner(id, type, msg){
 //  LOCAL CACHE — avoids re-fetching everything on every change
 // ═══════════════════════════════════════════════════════════════
 let cache = { settings:{}, campaigns:[], stages:[], milestones:[], blocks:[], budgetCols:[], budgetRows:[] };
+let jsonLoaded = false; // set to true when a JSON backup is loaded, pauses SharePoint sync
 let lastModifiedCheck = 0;
 
 // ═══════════════════════════════════════════════════════════════
 //  INITIAL DATA LOAD
 // ═══════════════════════════════════════════════════════════════
 async function loadAll(){
+  if(jsonLoaded){ showStatus('Using JSON backup — SharePoint sync paused', 'ok', 3000); return; }
   showStatus('Loading plan…', 'saving', 0);
   try {
     const [settings, campaigns, stages, milestones, blocks, budgetColItems, budgetRows] = await Promise.all([
@@ -631,6 +633,7 @@ function startPolling(){
 }
 
 async function checkForUpdates(){
+  if(jsonLoaded) return;
   try {
     const campaigns = await spGet(LISTS.campaigns, '', 'Id,Modified');
     const stages    = await spGet(LISTS.stages, '', 'Id,Modified');
@@ -698,23 +701,25 @@ function updateNavLabels(){
 
 function goHome(){
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.getElementById('home').classList.add('active');
+  const home = document.getElementById('home');
+  home.classList.add('active');
+  home.scrollTop = 0;
   document.getElementById('top-nav').classList.remove('visible');
   document.querySelectorAll('.nav-sec-btn').forEach(b => b.classList.remove('active'));
   document.getElementById('bc-sep').style.display = 'none';
   currentSection = null;
-  window.scrollTo(0,0);
 }
 
 function openSection(i){
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.getElementById('sec-'+i).classList.add('active');
+  const screen = document.getElementById('sec-'+i);
+  screen.classList.add('active');
+  screen.scrollTop = 0;
   document.getElementById('top-nav').classList.add('visible');
   document.querySelectorAll('.nav-sec-btn').forEach((b,j) => b.classList.toggle('active', j===i));
   document.getElementById('bc-sep').style.display = '';
   document.getElementById('bc-current').textContent = getSectionName(i);
   currentSection = i;
-  window.scrollTo(0,0);
   if(i===2) renderCalendar();
 }
 
@@ -1306,8 +1311,11 @@ function loadJSON(file){
       if(loaded.settings)   cache.settings   = loaded.settings;
       if(loaded.budgetCols) cache.budgetCols = loaded.budgetCols;
       if(loaded.budgetRows) cache.budgetRows = loaded.budgetRows;
+      jsonLoaded = true;
       applySettings(); renderCampaigns(); renderBudgetTable();
-      showBanner('json-load-result','success','Backup loaded — your data is restored in this view.');
+      clearInterval(_pollTimer);
+      showStatus('JSON backup loaded', 'ok', 3000);
+      showBanner('json-load-result','success','✓ Backup loaded — your data is restored. Note: changes will not sync to SharePoint until flows are configured.');
     } catch(err){ showBanner('json-load-result','error','Could not read file: '+err.message); }
   };
   reader.readAsText(file);
