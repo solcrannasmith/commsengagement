@@ -1,4 +1,7 @@
-<!DOCTYPE html>
+bash
+
+cat > /home/claude/build_final.py << 'PYEOF'
+html = r"""<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -13,40 +16,30 @@
   --forest-pale:#e8f0e0;--forest-mist:#f2f6ec;
   --gold:#c8960c;--gold-bright:#e0a80e;--gold-pale:#fdf3d0;
   --stone:#8a8478;--parchment:#f8f4ed;--ink:#1a1a14;--ink-soft:#3a3a2e;
-  --white:#fff;--red:#c0392b;
+  --white:#fff;--red:#c0392b;--red-pale:#fdecea;
+  --amber:#e67e22;--green-ok:#27ae60;
 }
 *{margin:0;padding:0;box-sizing:border-box;}
-html{scroll-behavior:auto;}
-body{font-family:'Source Sans 3',sans-serif;background:var(--parchment);color:var(--ink);overflow-x:hidden;}
+html,body{height:100%;overflow:hidden;}
+body{font-family:'Source Sans 3',sans-serif;background:var(--parchment);color:var(--ink);}
 body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");pointer-events:none;z-index:0;}
 
 /* ── SCREENS ── */
-.screen{display:none;position:fixed;inset:0;z-index:1;overflow-y:auto;overflow-x:hidden;background:var(--parchment);}.screen.active{display:block;}#home{z-index:1;}
+.screen{display:none;position:fixed;inset:0;z-index:1;overflow-y:auto;overflow-x:hidden;background:var(--parchment);}
+.screen.active{display:block;}
+#home{z-index:1;}
 
 /* ── STATUS BAR ── */
-#status-bar{
-  position:fixed;bottom:0;left:0;right:0;z-index:300;
-  background:var(--forest);color:#fff;
-  font-size:13px;padding:8px 20px;
-  display:flex;align-items:center;justify-content:space-between;
-  transform:translateY(100%);transition:transform .3s;
-}
+#status-bar{position:fixed;bottom:0;left:0;right:0;z-index:300;background:var(--forest);color:#fff;font-size:13px;padding:8px 20px;display:flex;align-items:center;justify-content:space-between;transform:translateY(100%);transition:transform .3s;}
 #status-bar.show{transform:translateY(0);}
 #status-bar.error{background:var(--red);}
 #status-bar.saving{background:var(--forest-mid);}
-.status-spinner{width:14px;height:14px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;display:none;}
+.status-spinner{width:14px;height:14px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;display:none;flex-shrink:0;}
 .status-spinner.show{display:inline-block;}
 @keyframes spin{to{transform:rotate(360deg);}}
 
 /* ── TOP NAV ── */
-#top-nav{
-  position:sticky;top:0;z-index:200;
-  background:var(--forest);
-  height:52px;padding:0 40px;
-  display:none;align-items:center;justify-content:space-between;
-  border-bottom:3px solid var(--gold);
-  flex-shrink:0;
-}
+#top-nav{position:sticky;top:0;z-index:200;background:var(--forest);height:52px;padding:0 40px;display:none;align-items:center;justify-content:space-between;border-bottom:3px solid var(--gold);flex-shrink:0;}
 #top-nav.visible{display:flex;}
 .nav-left{display:flex;align-items:center;gap:6px;}
 .bc-btn{background:none;border:none;font-family:inherit;font-size:13px;color:rgba(255,255,255,.55);cursor:pointer;padding:2px 0;transition:color .18s;text-decoration:underline;text-underline-offset:3px;text-decoration-color:rgba(255,255,255,.2);}
@@ -56,291 +49,351 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 .nav-sections{display:flex;gap:4px;}
 .nav-sec-btn{background:none;border:1px solid rgba(255,255,255,.18);border-radius:4px;font-family:inherit;font-size:12px;color:rgba(255,255,255,.65);cursor:pointer;padding:4px 10px;transition:all .15s;}
 .nav-sec-btn:hover,.nav-sec-btn.active{background:rgba(255,255,255,.12);color:#fff;border-color:rgba(255,255,255,.35);}
-.nav-sync-indicator{font-size:11px;color:rgba(255,255,255,.5);letter-spacing:.5px;}
-.nav-sync-indicator.syncing{color:var(--gold);}
+.nav-sync{font-size:11px;color:rgba(255,255,255,.45);letter-spacing:.5px;}
+.nav-sync.live{color:var(--gold);}
+
+/* ── CONFLICT BAR ── */
+#conflict-bar{display:none;position:fixed;top:52px;left:0;right:0;z-index:150;background:#fff3cd;border-bottom:2px solid var(--gold);padding:10px 20px;font-size:13px;color:#856404;align-items:center;gap:12px;}
+#conflict-bar.show{display:flex;}
+.conflict-btn{background:var(--gold);border:none;color:#fff;font-family:inherit;font-size:12px;font-weight:600;padding:5px 12px;border-radius:4px;cursor:pointer;}
 
 /* ── HOME ── */
 #home{min-height:100vh;display:flex;flex-direction:column;}
-.hero{background:var(--forest);min-height:45vh;position:relative;overflow:hidden;display:flex;flex-direction:column;justify-content:flex-end;}
-.hero-banner{position:absolute;inset:0;background:linear-gradient(135deg,#1a3009 0%,#2d5016 60%,#3d6b1f 100%);display:flex;align-items:center;justify-content:center;cursor:pointer;}
-.hero-banner img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0;}
-.hero-banner-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(20,35,8,.85) 0%,rgba(20,35,8,.2) 60%,transparent 100%);}
-.hero-banner-prompt{position:relative;z-index:2;text-align:center;color:rgba(255,255,255,.45);font-size:13px;font-weight:300;display:flex;flex-direction:column;align-items:center;gap:6px;}
-.hero-banner-prompt .icon{font-size:28px;opacity:.5;}
-#banner-input{display:none;}
-.hero-content{position:relative;z-index:3;padding:36px 60px 44px;}
+
+/* HERO */
+.hero{position:relative;overflow:hidden;display:flex;flex-direction:column;justify-content:flex-end;flex-shrink:0;}
+.hero-banner{position:absolute;inset:0;background:linear-gradient(135deg,#1a3009 0%,#2d5016 60%,#3d6b1f 100%);overflow:hidden;}
+.hero-banner img{position:absolute;width:100%;height:100%;object-fit:cover;object-position:var(--img-pos-x,50%) var(--img-pos-y,50%);filter:brightness(var(--img-brightness,0.75));}
+.hero-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(10,20,5,.88) 0%,rgba(10,20,5,.35) 55%,transparent 100%);}
+.hero-controls{position:absolute;top:12px;right:14px;z-index:10;display:flex;gap:8px;opacity:0;transition:opacity .2s;}
+.hero:hover .hero-controls{opacity:1;}
+.hero-ctrl-btn{background:rgba(0,0,0,.55);border:1px solid rgba(255,255,255,.25);color:#fff;font-family:inherit;font-size:11px;font-weight:500;padding:5px 10px;border-radius:4px;cursor:pointer;transition:background .15s;white-space:nowrap;}
+.hero-ctrl-btn:hover{background:rgba(0,0,0,.75);}
+.hero-upload-hint{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:6px;color:rgba(255,255,255,.4);font-size:13px;cursor:pointer;}
+.hero-upload-hint .icon{font-size:28px;opacity:.5;}
+#banner-input,#banner-pos-input{display:none;}
+
+/* Height slider panel */
+.hero-height-panel{position:absolute;top:44px;right:14px;z-index:10;background:rgba(0,0,0,.7);border:1px solid rgba(255,255,255,.2);border-radius:6px;padding:10px 14px;display:none;gap:10px;align-items:center;}
+.hero-height-panel.open{display:flex;}
+.hero-height-panel label{color:rgba(255,255,255,.7);font-size:12px;white-space:nowrap;}
+.hero-height-panel input[type=range]{width:120px;accent-color:var(--gold);}
+
+/* Brightness panel */
+.hero-bright-panel{position:absolute;top:44px;right:14px;z-index:10;background:rgba(0,0,0,.7);border:1px solid rgba(255,255,255,.2);border-radius:6px;padding:10px 14px;display:none;gap:10px;align-items:center;}
+.hero-bright-panel.open{display:flex;}
+.hero-bright-panel label{color:rgba(255,255,255,.7);font-size:12px;white-space:nowrap;}
+.hero-bright-panel input[type=range]{width:120px;accent-color:var(--gold);}
+
+.hero-content{position:relative;z-index:3;padding:32px 60px 40px;}
 .hero-label{font-size:11px;letter-spacing:4px;text-transform:uppercase;color:rgba(255,255,255,.45);font-weight:300;margin-bottom:10px;}
-.hero-title{font-family:'Playfair Display',serif;font-size:48px;font-weight:500;color:#fff;line-height:1.1;outline:none;min-width:200px;display:inline-block;}
+.hero-title{font-family:'Playfair Display',serif;font-size:46px;font-weight:500;color:#fff;line-height:1.1;outline:none;min-width:200px;display:inline-block;}
 .hero-title:empty::before{content:attr(data-ph);color:rgba(255,255,255,.3);}
-.hero-gold-bar{height:4px;background:linear-gradient(90deg,var(--gold),var(--gold-bright),var(--gold));width:100%;flex-shrink:0;}
-.home-desc-section{background:var(--white);padding:40px 60px;border-bottom:1px solid rgba(0,0,0,.07);}
+.hero-gold-bar{height:4px;background:linear-gradient(90deg,var(--gold),var(--gold-bright),var(--gold));width:100%;flex-shrink:0;position:relative;z-index:3;}
+
+/* HOME BODY */
+.home-desc-section{background:var(--white);padding:36px 60px;border-bottom:1px solid rgba(0,0,0,.07);}
 .home-desc-label{font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);font-weight:600;margin-bottom:10px;}
-.home-desc-text{font-size:15px;line-height:1.8;color:var(--ink-soft);outline:none;min-height:52px;max-width:760px;}
+.home-desc-text{font-size:15px;line-height:1.8;color:var(--ink-soft);outline:none;min-height:48px;max-width:760px;}
 .home-desc-text:empty::before{content:attr(data-ph);color:#c0bdb5;pointer-events:none;}
-.home-sections{flex:1;display:grid;grid-template-columns:1fr 1fr;border-top:1px solid rgba(0,0,0,.06);}
-.section-card{padding:44px 52px;cursor:pointer;border-right:1px solid rgba(0,0,0,.07);border-bottom:1px solid rgba(0,0,0,.07);position:relative;overflow:hidden;transition:background .22s;display:flex;flex-direction:column;gap:12px;}
+
+.home-sections{display:grid;grid-template-columns:1fr 1fr;border-top:1px solid rgba(0,0,0,.06);}
+.section-card{padding:40px 52px;cursor:pointer;border-right:1px solid rgba(0,0,0,.07);border-bottom:1px solid rgba(0,0,0,.07);position:relative;overflow:hidden;transition:background .22s;display:flex;flex-direction:column;gap:10px;}
 .section-card:nth-child(2n){border-right:none;}
 .section-card:nth-child(3),.section-card:nth-child(4){border-bottom:none;}
 .section-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--gold);transform:scaleY(0);transform-origin:bottom;transition:transform .28s ease;}
 .section-card:hover::before{transform:scaleY(1);}
 .section-card:hover{background:var(--forest-mist);}
 .section-num{font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);font-weight:600;}
-.section-icon{font-size:30px;}
-.section-name{font-family:'Playfair Display',serif;font-size:24px;color:var(--forest);outline:none;}
+.section-icon{font-size:28px;}
+.section-name{font-family:'Playfair Display',serif;font-size:22px;color:var(--forest);outline:none;}
 .section-name:empty::before{content:attr(data-ph);color:#bbb;font-style:italic;}
 .section-desc{font-size:13px;color:var(--stone);line-height:1.6;font-weight:300;}
 .section-arrow{font-size:16px;color:var(--gold);opacity:0;transition:opacity .18s,transform .18s;margin-top:auto;}
 .section-card:hover .section-arrow{opacity:1;transform:translateX(4px);}
 
+/* HOME BOTTOM BAR */
+.home-bottom-bar{background:var(--forest-mist);border-top:1px solid rgba(0,0,0,.07);padding:16px 60px;display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;}
+.home-bottom-left{font-size:13px;color:var(--stone);}
+.home-bottom-left strong{color:var(--ink-soft);}
+.home-bottom-right{display:flex;align-items:center;gap:10px;flex-shrink:0;}
+.json-load-dz{border:2px dashed rgba(200,150,12,.35);border-radius:6px;padding:7px 14px;font-size:13px;color:var(--gold);font-weight:500;cursor:pointer;transition:all .18s;}
+.json-load-dz:hover{border-color:var(--gold);background:var(--gold-pale);}
+.json-save-btn{background:var(--gold);border:none;color:#fff;font-family:inherit;font-size:13px;font-weight:600;padding:8px 18px;border-radius:6px;cursor:pointer;transition:background .18s;}
+.json-save-btn:hover{background:var(--gold-bright);}
+
 /* ── SHARED PAGE ── */
-.page-header{background:var(--forest);padding:32px 52px 28px;border-bottom:3px solid var(--gold);position:relative;}
-.page-eyebrow{font-size:11px;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,.4);font-weight:300;margin-bottom:6px;}
-.page-title{font-family:'Playfair Display',serif;font-size:34px;color:#fff;font-weight:500;outline:none;display:inline-block;min-width:100px;}
+.page-header{background:var(--forest);padding:28px 52px 24px;border-bottom:3px solid var(--gold);position:relative;flex-shrink:0;}
+.page-eyebrow{font-size:11px;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,.4);font-weight:300;margin-bottom:5px;}
+.page-title{font-family:'Playfair Display',serif;font-size:32px;color:#fff;font-weight:500;outline:none;display:inline-block;min-width:100px;}
 .page-title:empty::before{content:attr(data-ph);color:rgba(255,255,255,.3);}
-.page-body{padding:40px 52px;max-width:1100px;}
+.page-body{padding:36px 52px;max-width:1100px;}
 
 /* ── DROPZONES ── */
-.dropzone{border:2px dashed rgba(45,80,22,.25);border-radius:10px;padding:28px;cursor:pointer;background:var(--forest-mist);transition:all .2s;margin-bottom:24px;display:flex;align-items:center;gap:18px;}
+.dropzone{border:2px dashed rgba(45,80,22,.25);border-radius:10px;padding:24px;cursor:pointer;background:var(--forest-mist);transition:all .2s;margin-bottom:20px;display:flex;align-items:center;gap:16px;}
 .dropzone:hover,.dropzone.drag-over{border-color:var(--forest-light);background:var(--forest-pale);}
-.dropzone-icon{font-size:32px;flex-shrink:0;}
-.dropzone-title{font-size:15px;color:var(--forest);font-weight:500;margin-bottom:3px;}
-.dropzone-sub{font-size:13px;color:var(--stone);font-weight:300;}
+.dropzone-icon{font-size:28px;flex-shrink:0;}
+.dropzone-title{font-size:14px;color:var(--forest);font-weight:500;margin-bottom:2px;}
+.dropzone-sub{font-size:12px;color:var(--stone);font-weight:300;}
+
+/* ── RESULT BANNERS ── */
+.result-banner{margin-bottom:14px;padding:10px 14px;border-radius:6px;font-size:13px;display:none;line-height:1.6;}
+.result-banner.success{background:#e8f5e9;border:1px solid #a5d6a7;color:#2e7d32;display:block;}
+.result-banner.error{background:var(--red-pale);border:1px solid #ef9a9a;color:#b71c1c;display:block;}
+.result-banner.info{background:#e3f2fd;border:1px solid #90caf9;color:#1565c0;display:block;}
 
 /* ── OVERVIEW ── */
-.doc-content{background:var(--white);border:1px solid rgba(0,0,0,.08);border-radius:8px;padding:36px 40px;min-height:260px;font-size:15px;line-height:1.85;color:var(--ink-soft);outline:none;}
+.doc-content{background:var(--white);border:1px solid rgba(0,0,0,.08);border-radius:8px;padding:32px 36px;min-height:220px;font-size:15px;line-height:1.85;color:var(--ink-soft);outline:none;}
 .doc-content:empty::before{content:attr(data-ph);color:#c0bdb5;pointer-events:none;}
-.doc-content h1,.doc-content h2,.doc-content h3{font-family:'Playfair Display',serif;color:var(--forest);margin:18px 0 8px;}
-.doc-content h1{font-size:26px;}
-.doc-content h2{font-size:20px;}
-.doc-content h3{font-size:16px;}
-.doc-content p{margin-bottom:10px;}
-.doc-content ul,.doc-content ol{padding-left:18px;margin-bottom:10px;}
+.doc-content h1,.doc-content h2,.doc-content h3{font-family:'Playfair Display',serif;color:var(--forest);margin:16px 0 7px;}
+.doc-content h1{font-size:24px;}.doc-content h2{font-size:19px;}.doc-content h3{font-size:16px;}
+.doc-content p{margin-bottom:9px;}
+.doc-content ul,.doc-content ol{padding-left:18px;margin-bottom:9px;}
 
 /* ── CAMPAIGNS ── */
-.campaign-card{background:var(--white);border:1px solid rgba(0,0,0,.08);border-radius:8px;overflow:hidden;margin-bottom:10px;transition:box-shadow .2s;}
+.campaigns-grid{display:flex;flex-direction:column;gap:10px;margin-bottom:14px;}
+.campaign-card{background:var(--white);border:1px solid rgba(0,0,0,.08);border-radius:8px;overflow:hidden;transition:box-shadow .2s;}
 .campaign-card:hover{box-shadow:0 4px 16px rgba(45,80,22,.09);}
-.campaign-header{display:flex;align-items:center;gap:12px;padding:14px 18px;cursor:pointer;}
-.campaign-color-bar{width:4px;height:38px;border-radius:2px;flex-shrink:0;}
-.campaign-name-wrap{flex:1;}
+.campaign-header{display:flex;align-items:center;gap:10px;padding:13px 16px;cursor:pointer;}
+.campaign-color-bar{width:4px;height:36px;border-radius:2px;flex-shrink:0;}
+.campaign-name-wrap{flex:1;min-width:0;}
 .campaign-name-input{background:transparent;border:none;border-bottom:1px solid transparent;font-family:inherit;font-size:15px;font-weight:600;color:var(--forest);width:100%;cursor:pointer;outline:none;transition:border-color .15s;padding:1px 2px;}
 .campaign-name-input:focus{cursor:text;border-bottom-color:var(--gold);}
-.campaign-meta{font-size:12px;color:var(--stone);margin-top:2px;}
-.campaign-chevron{font-size:13px;color:var(--stone);transition:transform .2s;flex-shrink:0;}
+.campaign-meta{font-size:11px;color:var(--stone);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.campaign-chevron{font-size:12px;color:var(--stone);transition:transform .2s;flex-shrink:0;}
 .campaign-card.open .campaign-chevron{transform:rotate(180deg);}
-.campaign-del-btn{background:none;border:none;cursor:pointer;color:#ccc;font-size:13px;padding:4px;transition:color .15s;}
+.campaign-del-btn{background:none;border:none;cursor:pointer;color:#ccc;font-size:13px;padding:4px;transition:color .15s;flex-shrink:0;}
 .campaign-del-btn:hover{color:var(--red);}
-.campaign-body{display:none;padding:0 18px 18px;border-top:1px solid rgba(0,0,0,.05);}
+.campaign-body{display:none;padding:0 16px 16px;border-top:1px solid rgba(0,0,0,.05);}
 .campaign-card.open .campaign-body{display:block;}
-.camp-section-lbl{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--stone);font-weight:600;margin:16px 0 8px;display:flex;align-items:center;gap:8px;}
-.camp-section-lbl::after{content:'';flex:1;height:1px;background:rgba(0,0,0,.07);}
+.camp-lbl{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--stone);font-weight:600;margin:14px 0 7px;display:flex;align-items:center;gap:7px;}
+.camp-lbl::after{content:'';flex:1;height:1px;background:rgba(0,0,0,.07);}
 
-/* stages / milestones */
-.stages-list,.ms-list{display:flex;flex-direction:column;gap:7px;margin-bottom:8px;}
-.stage-row{display:grid;grid-template-columns:1fr 70px 90px 70px 90px 28px;align-items:center;gap:7px;background:var(--forest-mist);border-radius:6px;padding:8px 10px;}
-.stage-name-input,.date-input{background:transparent;border:none;border-bottom:1px solid rgba(0,0,0,.1);font-family:inherit;font-size:13px;color:var(--ink-soft);padding:2px 3px;outline:none;transition:border-color .15s;width:100%;}
-.stage-name-input:focus,.date-input:focus{border-bottom-color:var(--gold);}
+/* Campaign meta fields row */
+.camp-meta-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:2px;}
+.camp-field{display:flex;flex-direction:column;gap:4px;}
+.camp-field-lbl{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--stone);font-weight:600;}
+.camp-field-input{background:var(--forest-mist);border:1px solid transparent;border-radius:5px;font-family:inherit;font-size:13px;color:var(--ink-soft);padding:7px 9px;outline:none;transition:border-color .15s,background .15s;}
+.camp-field-input:focus{border-color:var(--gold);background:var(--white);}
+
+/* Stages */
+.stages-list,.ms-list{display:flex;flex-direction:column;gap:6px;margin-bottom:7px;}
+.stage-row{display:grid;grid-template-columns:1fr 62px 90px 62px 90px 24px;align-items:center;gap:6px;background:var(--forest-mist);border-radius:5px;padding:7px 9px;}
+.row-input{background:transparent;border:none;border-bottom:1px solid rgba(0,0,0,.1);font-family:inherit;font-size:13px;color:var(--ink-soft);padding:2px 3px;outline:none;transition:border-color .15s;width:100%;}
+.row-input:focus{border-bottom-color:var(--gold);}
 .date-lbl{font-size:10px;color:var(--stone);white-space:nowrap;text-align:right;}
-.row-del{background:none;border:none;cursor:pointer;color:#ccc;font-size:12px;padding:2px;transition:color .15s;}
+.row-del{background:none;border:none;cursor:pointer;color:#ccc;font-size:11px;padding:2px;transition:color .15s;}
 .row-del:hover{color:var(--red);}
-.ms-row{display:grid;grid-template-columns:20px 1fr 90px 28px;align-items:center;gap:7px;background:var(--gold-pale);border-radius:6px;padding:8px 10px;}
-.ms-icon{font-size:13px;}
-.ms-name-input{background:transparent;border:none;border-bottom:1px solid rgba(200,150,12,.25);font-family:inherit;font-size:13px;color:var(--ink-soft);padding:2px 3px;outline:none;width:100%;}
-.ms-name-input:focus{border-bottom-color:var(--gold);}
-.ms-date-input{background:transparent;border:none;border-bottom:1px solid rgba(200,150,12,.25);font-family:inherit;font-size:13px;color:var(--ink-soft);padding:2px 3px;outline:none;width:100%;}
-.ms-date-input:focus{border-bottom-color:var(--gold);}
 
-/* content blocks */
-.content-blocks{display:flex;flex-direction:column;gap:9px;margin-bottom:8px;}
-.cblock{background:var(--white);border:1px solid rgba(0,0,0,.08);border-radius:6px;padding:14px 16px;position:relative;}
+/* Milestones */
+.ms-row{display:grid;grid-template-columns:18px 1fr 90px 24px;align-items:center;gap:6px;background:var(--gold-pale);border-radius:5px;padding:7px 9px;}
+.ms-icon{font-size:12px;}
+
+/* Expenses */
+.expense-row{display:grid;grid-template-columns:1fr 110px 24px;align-items:center;gap:6px;background:#fef9f0;border:1px solid rgba(200,150,12,.15);border-radius:5px;padding:7px 9px;margin-bottom:5px;}
+.expense-amount{font-weight:600;color:var(--forest);text-align:right;}
+
+/* Content blocks */
+.content-blocks{display:flex;flex-direction:column;gap:8px;margin-bottom:7px;}
+.cblock{background:var(--white);border:1px solid rgba(0,0,0,.08);border-radius:6px;padding:12px 14px;position:relative;}
 .cblock:focus-within{border-color:var(--forest-light);box-shadow:0 0 0 3px rgba(74,124,36,.07);}
-.cblock-lbl{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--stone);font-weight:600;margin-bottom:6px;outline:none;cursor:text;border-bottom:1px solid transparent;transition:border-color .15s;display:inline-block;}
+.cblock-lbl{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--stone);font-weight:600;margin-bottom:5px;outline:none;cursor:text;border-bottom:1px solid transparent;transition:border-color .15s;display:inline-block;}
 .cblock-lbl:focus{border-bottom-color:var(--gold);}
-.cblock-txt{outline:none;font-size:14px;line-height:1.75;color:var(--ink-soft);min-height:36px;}
+.cblock-txt{outline:none;font-size:13px;line-height:1.7;color:var(--ink-soft);min-height:32px;}
 .cblock-txt:empty::before{content:attr(data-ph);color:#c0bdb5;pointer-events:none;}
-.cblock-del{position:absolute;top:8px;right:8px;background:none;border:none;cursor:pointer;color:#ddd;font-size:11px;opacity:0;transition:opacity .15s,color .15s;font-family:inherit;}
+.cblock-del{position:absolute;top:7px;right:7px;background:none;border:none;cursor:pointer;color:#ddd;font-size:11px;opacity:0;transition:opacity .15s,color .15s;font-family:inherit;}
 .cblock:hover .cblock-del{opacity:1;}
 .cblock-del:hover{color:var(--red);}
-.add-btn{display:inline-flex;align-items:center;gap:5px;background:none;border:2px dashed rgba(45,80,22,.2);color:var(--forest-mid);padding:7px 13px;border-radius:6px;font-size:13px;font-family:inherit;font-weight:500;cursor:pointer;transition:all .18s;margin-top:2px;}
+
+.add-btn{display:inline-flex;align-items:center;gap:5px;background:none;border:2px dashed rgba(45,80,22,.2);color:var(--forest-mid);padding:6px 12px;border-radius:5px;font-size:12px;font-family:inherit;font-weight:500;cursor:pointer;transition:all .18s;margin-top:2px;}
 .add-btn:hover{border-color:var(--forest-light);background:var(--forest-mist);color:var(--forest);}
 .add-btn-gold{border-color:rgba(200,150,12,.3);color:#8a6500;}
 .add-btn-gold:hover{border-color:var(--gold);background:var(--gold-pale);}
-.add-campaign-btn{display:inline-flex;align-items:center;gap:7px;background:var(--forest);color:#fff;border:none;padding:11px 20px;border-radius:6px;font-family:inherit;font-size:14px;font-weight:500;cursor:pointer;transition:background .18s;margin-top:4px;}
+.add-btn-expense{border-color:rgba(200,150,12,.25);color:#a07000;background:#fffdf5;}
+.add-btn-expense:hover{border-color:var(--gold);background:var(--gold-pale);}
+.add-campaign-btn{display:inline-flex;align-items:center;gap:7px;background:var(--forest);color:#fff;border:none;padding:10px 18px;border-radius:6px;font-family:inherit;font-size:13px;font-weight:500;cursor:pointer;transition:background .18s;}
 .add-campaign-btn:hover{background:var(--forest-mid);}
 
 /* ── CALENDAR ── */
-.cal-controls{display:flex;align-items:center;gap:12px;margin-bottom:24px;flex-wrap:wrap;}
+.cal-controls{display:flex;align-items:center;gap:10px;margin-bottom:20px;flex-wrap:wrap;}
 .cal-toggle{display:flex;background:var(--white);border:1px solid rgba(0,0,0,.1);border-radius:6px;overflow:hidden;}
-.cal-toggle-btn{background:none;border:none;font-family:inherit;font-size:13px;color:var(--stone);padding:7px 15px;cursor:pointer;transition:all .15s;}
+.cal-toggle-btn{background:none;border:none;font-family:inherit;font-size:13px;color:var(--stone);padding:7px 14px;cursor:pointer;transition:all .15s;}
 .cal-toggle-btn.active{background:var(--forest);color:#fff;}
 .cal-legend{display:flex;flex-wrap:wrap;gap:7px;margin-left:auto;}
 .cal-legend-item{display:flex;align-items:center;gap:4px;font-size:12px;color:var(--stone);}
-.cal-legend-dot{width:9px;height:9px;border-radius:50%;}
+.cal-legend-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;}
 .month-list{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;}
-.month-card{background:var(--white);border:1px solid rgba(0,0,0,.08);border-radius:8px;padding:16px 18px;cursor:pointer;transition:all .2s;display:flex;flex-direction:column;gap:7px;}
+.month-card{background:var(--white);border:1px solid rgba(0,0,0,.08);border-radius:8px;padding:14px 16px;cursor:pointer;transition:all .2s;display:flex;flex-direction:column;gap:6px;}
 .month-card:hover{border-color:var(--forest-light);box-shadow:0 4px 14px rgba(45,80,22,.1);transform:translateY(-2px);}
-.month-card-name{font-family:'Playfair Display',serif;font-size:17px;color:var(--forest);}
+.month-card-name{font-family:'Playfair Display',serif;font-size:16px;color:var(--forest);}
 .month-card-year{font-size:11px;color:var(--stone);}
-.month-card-dots{display:flex;flex-wrap:wrap;gap:3px;min-height:14px;}
+.month-card-dots{display:flex;flex-wrap:wrap;gap:3px;min-height:12px;}
 .month-dot{width:7px;height:7px;border-radius:50%;}
-.cal-back-btn{display:inline-flex;align-items:center;gap:5px;background:none;border:none;font-family:inherit;font-size:13px;color:var(--forest-mid);cursor:pointer;margin-bottom:16px;padding:5px 0;}
+.cal-back-btn{display:inline-flex;align-items:center;gap:5px;background:none;border:none;font-family:inherit;font-size:13px;color:var(--forest-mid);cursor:pointer;margin-bottom:14px;padding:4px 0;}
 .cal-back-btn:hover{color:var(--forest);}
-.cal-month-title{font-family:'Playfair Display',serif;font-size:26px;color:var(--forest);margin-bottom:16px;}
+.cal-month-title{font-family:'Playfair Display',serif;font-size:24px;color:var(--forest);margin-bottom:14px;}
 .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;}
-.cal-day-hdr{text-align:center;font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--stone);font-weight:600;padding:7px 3px;}
-.cal-day{min-height:76px;background:var(--white);border:1px solid rgba(0,0,0,.07);border-radius:5px;padding:5px;font-size:12px;color:var(--stone);}
-.cal-day.today{border-color:var(--gold);box-shadow:0 0 0 2px rgba(200,150,12,.18);}
+.cal-day-hdr{text-align:center;font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--stone);font-weight:600;padding:6px 2px;}
+.cal-day{min-height:72px;background:var(--white);border:1px solid rgba(0,0,0,.07);border-radius:4px;padding:4px;}
+.cal-day.today{border-color:var(--gold);box-shadow:0 0 0 2px rgba(200,150,12,.15);}
 .cal-day.empty{background:transparent;border-color:transparent;}
 .cal-day-num{font-size:12px;font-weight:600;color:var(--ink-soft);margin-bottom:3px;}
 .cal-event{font-size:10px;font-weight:500;padding:2px 4px;border-radius:3px;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#fff;}
-.cal-event-milestone{font-weight:700;letter-spacing:.2px;}
-.cal-event-milestone{font-weight:700;letter-spacing:.2px;}
-.cal-list-month{margin-bottom:24px;}
-.cal-list-month-title{font-family:'Playfair Display',serif;font-size:20px;color:var(--forest);margin-bottom:10px;padding-bottom:7px;border-bottom:2px solid var(--forest-pale);}
-.cal-list-item{display:flex;align-items:flex-start;gap:10px;padding:9px 13px;border-radius:6px;margin-bottom:5px;background:var(--white);border:1px solid rgba(0,0,0,.06);}
-.cal-list-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;margin-top:4px;}
-.cal-list-date{font-size:12px;color:var(--stone);min-width:80px;font-weight:500;}
+.cal-event-milestone{font-weight:700;}
+.cal-list-month{margin-bottom:22px;}
+.cal-list-month-title{font-family:'Playfair Display',serif;font-size:19px;color:var(--forest);margin-bottom:9px;padding-bottom:6px;border-bottom:2px solid var(--forest-pale);}
+.cal-list-item{display:flex;align-items:flex-start;gap:9px;padding:8px 12px;border-radius:6px;margin-bottom:4px;background:var(--white);border:1px solid rgba(0,0,0,.06);}
+.cal-list-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:4px;}
+.cal-list-date{font-size:12px;color:var(--stone);min-width:78px;font-weight:500;}
 .cal-list-title{font-size:13px;color:var(--ink-soft);}
 .cal-list-sub{font-size:11px;color:var(--stone);}
 
-/* ── BUDGET ── */
-.budget-table-wrap{background:var(--white);border:1px solid rgba(0,0,0,.08);border-radius:8px;overflow:auto;}
-.budget-table{width:100%;border-collapse:collapse;font-size:13px;min-width:600px;}
-.budget-table th{background:var(--forest);color:#fff;padding:10px 13px;text-align:left;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;font-weight:600;white-space:nowrap;}
-.budget-table th[contenteditable]{cursor:text;outline:none;}
-.budget-table th[contenteditable]:focus{background:var(--forest-mid);}
-.budget-table td{padding:9px 13px;border-bottom:1px solid rgba(0,0,0,.05);color:var(--ink-soft);}
+/* ── BUDGET TRACKER ── */
+.budget-summary-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px;}
+.budget-stat{background:var(--white);border:1px solid rgba(0,0,0,.08);border-radius:8px;padding:14px 18px;}
+.budget-stat-lbl{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--stone);font-weight:600;margin-bottom:5px;}
+.budget-stat-val{font-family:'Playfair Display',serif;font-size:26px;color:var(--forest);}
+.budget-stat-val.over{color:var(--red);}
+.budget-stat-val.on-track{color:var(--green-ok);}
+
+.budget-table-wrap{background:var(--white);border:1px solid rgba(0,0,0,.08);border-radius:8px;overflow:auto;margin-bottom:16px;}
+.budget-table{width:100%;border-collapse:collapse;font-size:13px;min-width:700px;}
+.budget-table th{background:var(--forest);color:#fff;padding:10px 12px;text-align:left;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;font-weight:600;white-space:nowrap;}
+.budget-table td{padding:9px 12px;border-bottom:1px solid rgba(0,0,0,.05);color:var(--ink-soft);vertical-align:top;}
 .budget-table tr:last-child td{border-bottom:none;}
 .budget-table tr:hover td{background:var(--forest-mist);}
-.budget-table td[contenteditable]{outline:none;cursor:text;}
-.budget-table td[contenteditable]:focus{background:var(--gold-pale);}
-.budget-add-row{display:flex;align-items:center;gap:7px;padding:9px 13px;background:var(--forest-mist);border-top:1px solid rgba(0,0,0,.05);cursor:pointer;font-size:13px;color:var(--forest-mid);font-weight:500;transition:background .15s;}
-.budget-add-row:hover{background:var(--forest-pale);}
-.row-del-btn{background:none;border:none;cursor:pointer;color:#ddd;font-size:12px;padding:2px 4px;transition:color .15s;}
-.row-del-btn:hover{color:var(--red);}
+.budget-table .num-cell{text-align:right;font-weight:500;font-variant-numeric:tabular-nums;}
+.budget-table .variance-pos{color:var(--green-ok);font-weight:600;}
+.budget-table .variance-neg{color:var(--red);font-weight:600;}
+.rag-dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:5px;}
 
-/* ── RESULT BANNERS ── */
-.result-banner{margin-bottom:16px;padding:10px 14px;border-radius:6px;font-size:13px;display:none;line-height:1.6;}
-.result-banner.success{background:#e8f5e9;border:1px solid #a5d6a7;color:#2e7d32;display:block;}
-.result-banner.error{background:#fdecea;border:1px solid #ef9a9a;color:#b71c1c;display:block;}
-.result-banner.info{background:#e3f2fd;border:1px solid #90caf9;color:#1565c0;display:block;}
-
-/* ── CONFLICT BANNER ── */
-#conflict-bar{display:none;position:fixed;top:52px;left:0;right:0;z-index:150;background:#fff3cd;border-bottom:2px solid #e0a80e;padding:10px 20px;font-size:13px;color:#856404;align-items:center;gap:12px;}
-#conflict-bar.show{display:flex;}
-.conflict-refresh-btn{background:var(--gold);border:none;color:#fff;font-family:inherit;font-size:12px;font-weight:600;padding:5px 12px;border-radius:4px;cursor:pointer;}
+/* Expense sub-rows */
+.budget-table .exp-row td{background:#fafaf7;font-size:12px;padding:5px 12px 5px 28px;color:var(--stone);}
+.budget-table .exp-row:hover td{background:#f5f5f0;}
+.exp-toggle{cursor:pointer;color:var(--forest-mid);font-size:11px;margin-left:6px;background:none;border:none;font-family:inherit;padding:0;}
 
 @media(max-width:700px){
   .home-sections{grid-template-columns:1fr;}
-  .hero-content{padding:24px 22px 32px;}
-  .hero-title{font-size:30px;}
-  .page-body,.home-desc-section{padding:22px 18px;}
+  .hero-content{padding:22px 22px 30px;}
+  .hero-title{font-size:28px;}
+  .page-body,.home-desc-section,.home-bottom-bar{padding:20px 18px;}
   .month-list{grid-template-columns:repeat(2,1fr);}
   #top-nav{padding:0 14px;}
   .nav-sections{display:none;}
-  .stage-row{grid-template-columns:1fr 90px 28px;}
+  .camp-meta-row{grid-template-columns:1fr;}
+  .stage-row{grid-template-columns:1fr 90px 24px;}
+  .budget-summary-grid{grid-template-columns:1fr;}
 }
 </style>
 </head>
 <body>
 
-<!-- STATUS BAR -->
-<div id="status-bar">
-  <span id="status-msg">Ready</span>
-  <div class="status-spinner" id="status-spinner"></div>
-</div>
-
-<!-- CONFLICT WARNING -->
-<div id="conflict-bar">
-  ⚠️ Someone else has updated this plan. <button class="conflict-refresh-btn" onclick="location.reload()">Refresh to see latest</button>
-</div>
+<div id="status-bar"><span id="status-msg"></span><div class="status-spinner" id="status-spinner"></div></div>
+<div id="conflict-bar">⚠️ Someone else has updated this plan. <button class="conflict-btn" onclick="location.reload()">Refresh to see latest</button></div>
 
 <!-- TOP NAV -->
 <div id="top-nav">
   <div class="nav-left">
     <button class="bc-btn" onclick="goHome()">Home</button>
-    <span class="bc-sep" style="display:none" id="bc-sep">›</span>
+    <span class="bc-sep" id="bc-sep" style="display:none">›</span>
     <span class="bc-current" id="bc-current"></span>
   </div>
   <div class="nav-sections">
-    <button class="nav-sec-btn" onclick="openSection(0)" id="snav-0">Overview</button>
-    <button class="nav-sec-btn" onclick="openSection(1)" id="snav-1">Campaigns</button>
-    <button class="nav-sec-btn" onclick="openSection(2)" id="snav-2">Calendar</button>
-    <button class="nav-sec-btn" onclick="openSection(3)" id="snav-3">Budget</button>
+    <button class="nav-sec-btn" id="snav-0" onclick="openSection(0)">Overview</button>
+    <button class="nav-sec-btn" id="snav-1" onclick="openSection(1)">Campaigns</button>
+    <button class="nav-sec-btn" id="snav-2" onclick="openSection(2)">Calendar</button>
+    <button class="nav-sec-btn" id="snav-3" onclick="openSection(3)">Budget</button>
   </div>
-  <span class="nav-sync-indicator" id="sync-indicator">● Live</span>
+  <span class="nav-sync" id="nav-sync">● Live</span>
 </div>
 
 <!-- ═══ HOME ═══ -->
 <div id="home" class="screen active">
-  <div class="hero">
-    <div class="hero-banner" id="hero-banner" onclick="document.getElementById('banner-input').click()">
-      <div class="hero-banner-overlay"></div>
-      <div class="hero-banner-prompt" id="banner-prompt">
-        <span class="icon">🖼</span>
-        <span>Click to upload a banner image</span>
+  <div class="hero" id="hero" style="height:var(--hero-h,360px)">
+    <div class="hero-banner" id="hero-banner">
+      <div class="hero-upload-hint" id="banner-hint" onclick="document.getElementById('banner-input').click()">
+        <span class="icon">🖼</span><span>Click to upload a banner image</span>
       </div>
     </div>
+    <div class="hero-overlay"></div>
     <input type="file" id="banner-input" accept="image/*">
+
+    <!-- Controls shown on hover -->
+    <div class="hero-controls">
+      <button class="hero-ctrl-btn" onclick="document.getElementById('banner-input').click()">📷 Change image</button>
+      <button class="hero-ctrl-btn" id="bright-toggle-btn" onclick="toggleBrightPanel()">☀ Brightness</button>
+      <button class="hero-ctrl-btn" id="height-toggle-btn" onclick="toggleHeightPanel()">↕ Height</button>
+      <button class="hero-ctrl-btn" onclick="resetBannerPos()" id="pos-reset-btn" style="display:none">⌖ Reset position</button>
+    </div>
+
+    <!-- Brightness panel -->
+    <div class="hero-bright-panel" id="bright-panel">
+      <label>Brightness</label>
+      <input type="range" id="bright-slider" min="20" max="110" value="75"
+        oninput="setBrightness(this.value)">
+      <span id="bright-val" style="color:rgba(255,255,255,.7);font-size:12px;min-width:32px;">75%</span>
+    </div>
+
+    <!-- Height panel -->
+    <div class="hero-height-panel" id="height-panel">
+      <label>Banner height</label>
+      <input type="range" id="height-slider" min="200" max="600" value="360" step="10"
+        oninput="setHeroHeight(this.value)">
+      <span id="height-val" style="color:rgba(255,255,255,.7);font-size:12px;min-width:36px;">360px</span>
+    </div>
+
     <div class="hero-gold-bar"></div>
     <div class="hero-content">
       <div class="hero-label">Communications &amp; Engagement</div>
-      <div class="hero-title"
-        contenteditable="true"
-        data-ph="Plan Title"
-        data-spkey="title"
+      <div class="hero-title" contenteditable="true" data-ph="Plan Title" data-spkey="title"
         onblur="saveSetting('title',this.innerHTML)"></div>
     </div>
   </div>
+
   <div class="home-desc-section">
     <div class="home-desc-label">About This Plan</div>
-    <div class="home-desc-text"
-      contenteditable="true"
-      data-ph="Add a description of this plan…"
-      data-spkey="description"
-      onblur="saveSetting('description',this.innerHTML)"></div>
+    <div class="home-desc-text" contenteditable="true" data-ph="Add a description of this plan…"
+      data-spkey="description" onblur="saveSetting('description',this.innerHTML)"></div>
   </div>
+
   <div class="home-sections">
     <div class="section-card" onclick="openSection(0)">
-      <div class="section-num">Section 01</div>
-      <div class="section-icon">📋</div>
+      <div class="section-num">Section 01</div><div class="section-icon">📋</div>
       <div class="section-name" contenteditable="true" data-ph="Overview" data-spkey="sec-name-0"
         onblur="saveSetting('sec-name-0',this.innerHTML);updateNavLabels()" onclick="event.stopPropagation()"></div>
       <div class="section-desc">Strategy, context, and key information about this plan.</div>
       <div class="section-arrow">→</div>
     </div>
     <div class="section-card" onclick="openSection(1)">
-      <div class="section-num">Section 02</div>
-      <div class="section-icon">🎯</div>
+      <div class="section-num">Section 02</div><div class="section-icon">🎯</div>
       <div class="section-name" contenteditable="true" data-ph="Campaigns" data-spkey="sec-name-1"
         onblur="saveSetting('sec-name-1',this.innerHTML);updateNavLabels()" onclick="event.stopPropagation()"></div>
-      <div class="section-desc">Individual campaigns and projects with stages and milestones.</div>
+      <div class="section-desc">Campaigns with stages, milestones, expenses and content.</div>
       <div class="section-arrow">→</div>
     </div>
     <div class="section-card" onclick="openSection(2)">
-      <div class="section-num">Section 03</div>
-      <div class="section-icon">📅</div>
+      <div class="section-num">Section 03</div><div class="section-icon">📅</div>
       <div class="section-name" contenteditable="true" data-ph="Calendar" data-spkey="sec-name-2"
         onblur="saveSetting('sec-name-2',this.innerHTML);updateNavLabels()" onclick="event.stopPropagation()"></div>
       <div class="section-desc">Visual calendar July 2026 – June 2027, auto-filled from campaign dates.</div>
       <div class="section-arrow">→</div>
     </div>
     <div class="section-card" onclick="openSection(3)">
-      <div class="section-num">Section 04</div>
-      <div class="section-icon">💰</div>
+      <div class="section-num">Section 04</div><div class="section-icon">💰</div>
       <div class="section-name" contenteditable="true" data-ph="Budget Tracker" data-spkey="sec-name-3"
         onblur="saveSetting('sec-name-3',this.innerHTML);updateNavLabels()" onclick="event.stopPropagation()"></div>
-      <div class="section-desc">Budget and spend tracking, importable from Excel.</div>
+      <div class="section-desc">Auto-generated from campaign expenses. Planned vs actual with RAG status.</div>
       <div class="section-arrow">→</div>
     </div>
   </div>
-  <div style="background:var(--forest-mist);border-top:1px solid rgba(0,0,0,.07);padding:20px 60px;display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;">
-    <div style="font-size:13px;color:var(--stone);">
-      <strong style="color:var(--ink-soft);">Working offline?</strong>
-      Save your work as a JSON file to back up your data, or load a previous save to restore it.
-      <span style="margin-left:12px;font-size:12px;">Last synced: <span id="last-sync-label">loading…</span></span>
+
+  <div class="home-bottom-bar">
+    <div class="home-bottom-left">
+      <strong>Live document</strong> — changes save to SharePoint automatically.
+      Last synced: <span id="last-sync-label">loading…</span>
     </div>
-    <div style="display:flex;align-items:center;gap:10px;flex-shrink:0;">
-      <div id="json-load-dz" style="border:2px dashed rgba(200,150,12,.35);border-radius:6px;padding:8px 16px;font-size:13px;color:var(--gold);font-weight:500;cursor:pointer;transition:all .18s;"
+    <div class="home-bottom-right">
+      <div class="json-load-dz" id="json-load-dz"
         onclick="document.getElementById('json-load-input').click()"
         ondragover="event.preventDefault();this.style.borderColor='var(--gold)'"
         ondragleave="this.style.borderColor=''"
@@ -348,12 +401,10 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
         📂 Load JSON backup
       </div>
       <input type="file" id="json-load-input" accept=".json" style="display:none">
-      <button onclick="saveJSON()" style="background:var(--gold);border:none;color:#fff;font-family:inherit;font-size:13px;font-weight:600;padding:9px 20px;border-radius:6px;cursor:pointer;transition:background .18s;" onmouseover="this.style.background='var(--gold-bright)'" onmouseout="this.style.background='var(--gold)'">
-        ⬇ Save JSON backup
-      </button>
+      <button class="json-save-btn" onclick="saveJSON()">⬇ Save JSON backup</button>
     </div>
   </div>
-  <div class="result-banner" id="json-load-result" style="margin:0 60px 20px;"></div>
+  <div class="result-banner" id="json-result" style="margin:0 60px 16px;"></div>
 </div>
 
 <!-- ═══ OVERVIEW ═══ -->
@@ -366,10 +417,8 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
   <div class="page-body">
     <div class="dropzone" id="overview-dz" onclick="document.getElementById('overview-input').click()">
       <div class="dropzone-icon">📄</div>
-      <div>
-        <div class="dropzone-title">Import from Word Document</div>
-        <div class="dropzone-sub">Drop a .docx file or click to browse — fully editable after import.</div>
-      </div>
+      <div><div class="dropzone-title">Import from Word Document</div>
+      <div class="dropzone-sub">Drop a .docx file or click to browse — fully editable after import.</div></div>
     </div>
     <input type="file" id="overview-input" accept=".docx" style="display:none">
     <div class="result-banner" id="overview-result"></div>
@@ -388,7 +437,7 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
   </div>
   <div class="page-body">
     <div class="result-banner" id="camp-result"></div>
-    <div id="campaigns-grid"></div>
+    <div class="campaigns-grid" id="campaigns-grid"></div>
     <button class="add-campaign-btn" onclick="addCampaign()">＋ Add Campaign / Project</button>
   </div>
 </div>
@@ -408,17 +457,13 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
       </div>
       <div class="cal-legend" id="cal-legend"></div>
     </div>
-    <div id="cal-months-view">
-      <div class="month-list" id="month-list"></div>
-    </div>
+    <div id="cal-months-view"><div class="month-list" id="month-list"></div></div>
     <div id="cal-grid-view" style="display:none;">
       <button class="cal-back-btn" onclick="closeMonthGrid()">← Back to months</button>
       <div class="cal-month-title" id="cal-month-title"></div>
       <div class="cal-grid" id="cal-grid"></div>
     </div>
-    <div id="cal-agenda-view" style="display:none;">
-      <div id="cal-agenda"></div>
-    </div>
+    <div id="cal-agenda-view" style="display:none;"><div id="cal-agenda"></div></div>
   </div>
 </div>
 
@@ -430,21 +475,24 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
       onblur="saveSetting('sec-name-3',this.innerHTML);updateNavLabels()"></div>
   </div>
   <div class="page-body" style="max-width:1200px;">
-    <div class="dropzone" id="budget-dz" onclick="document.getElementById('budget-input').click()">
-      <div class="dropzone-icon">📊</div>
-      <div>
-        <div class="dropzone-title">Import from Excel</div>
-        <div class="dropzone-sub">Drop a .xlsx / .xls / .csv file — columns auto-detected, table fully editable.</div>
-      </div>
+    <div class="result-banner info" id="budget-info" style="display:block;">
+      💡 This tracker is auto-generated from your campaign data. Add expenses inside each campaign in Section 02. Set planned spend and cost code on the campaign itself.
     </div>
-    <input type="file" id="budget-input" accept=".xlsx,.xls,.csv" style="display:none">
-    <div class="result-banner" id="budget-result"></div>
-    <div class="budget-table-wrap" id="budget-table-wrap" style="display:none;">
-      <table class="budget-table" id="budget-table">
-        <thead><tr id="budget-header-row"></tr></thead>
+    <div class="budget-summary-grid" id="budget-summary"></div>
+    <div class="budget-table-wrap">
+      <table class="budget-table">
+        <thead>
+          <tr>
+            <th>Campaign</th>
+            <th>Cost Code</th>
+            <th style="text-align:right">Planned ($)</th>
+            <th style="text-align:right">Actual ($)</th>
+            <th style="text-align:right">Variance ($)</th>
+            <th>Status</th>
+          </tr>
+        </thead>
         <tbody id="budget-body"></tbody>
       </table>
-      <div class="budget-add-row" onclick="addBudgetRow()">＋ Add row</div>
     </div>
   </div>
 </div>
@@ -452,366 +500,381 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 <script>
 // ═══════════════════════════════════════════════════════════════
 //  CONFIGURATION
-//  1. Set SITE_URL to your SharePoint site
-//  2. Paste each Power Automate flow URL into PA_FLOWS below
-//     Leave a flow as '' until you have created it — that
-//     operation will be disabled but the rest will work fine.
 // ═══════════════════════════════════════════════════════════════
 const SITE_URL = 'https://docnz.sharepoint.com/teams/AucklandMainlandCommunity';
-
 const LISTS = {
   settings:  'CEP_Settings',
   campaigns: 'CEP_Campaigns',
   stages:    'CEP_Stages',
   milestones:'CEP_Milestones',
   blocks:    'CEP_ContentBlocks',
-  budgetCols:'CEP_BudgetColumns',
-  budget:    'CEP_Budget'
-};
-
-// Paste your Power Automate HTTP trigger URLs here after creating each flow
-const PA_FLOWS = {
-  saveSetting:   '',   // Flow 1: CEP-SaveSetting
-  createCampaign:'',   // Flow 2: CEP-CreateCampaign
-  updateCampaign:'',   // Flow 3: CEP-UpdateCampaign
-  deleteCampaign:'',   // Flow 4: CEP-DeleteCampaign
-  createStage:   '',   // Flow 5: CEP-CreateStage
-  updateStage:   '',   // Flow 6: CEP-UpdateStage
-  deleteStage:   '',   // Flow 7: CEP-DeleteStage
-  createMilestone:'',  // Flow 8: CEP-CreateMilestone
-  updateMilestone:'',  // Flow 9: CEP-UpdateMilestone
-  deleteMilestone:'',  // Flow 10: CEP-DeleteMilestone
-  createBlock:   '',   // Flow 11: CEP-CreateBlock
-  updateBlock:   '',   // Flow 12: CEP-UpdateBlock
-  deleteBlock:   '',   // Flow 13: CEP-DeleteBlock
-  saveBudgetCols:'',   // Flow 14: CEP-SaveBudgetCols
-  saveBudgetRow: '',   // Flow 15: CEP-SaveBudgetRow
-  deleteBudgetRow:'',  // Flow 16: CEP-DeleteBudgetRow
-  importBudget:  ''    // Flow 17: CEP-ImportBudget (bulk import from Excel)
+  expenses:  'CEP_Expenses',
+  budget:    'CEP_Budget',
+  budgetCols:'CEP_BudgetColumns'
 };
 
 // ═══════════════════════════════════════════════════════════════
-//  POWER AUTOMATE WRITE HELPER
-//  All writes go through Power Automate flows.
-//  Reads go directly to SharePoint (already working).
+//  SHAREPOINT REST API
 // ═══════════════════════════════════════════════════════════════
+let _digest = null, _digestExp = 0;
 
-async function paCall(flowKey, payload){
-  const url = PA_FLOWS[flowKey];
-  if(!url){
-    throw new Error(`Flow '${flowKey}' not configured yet. Paste the Power Automate trigger URL into PA_FLOWS.${flowKey} in the config section.`);
-  }
-  const r = await fetch(url, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload)
+async function getDigest(){
+  if(_digest && Date.now() < _digestExp) return _digest;
+  const r = await fetch(`${SITE_URL}/_api/contextinfo`,{
+    method:'POST', credentials:'include',
+    headers:{'Accept':'application/json;odata=verbose','Content-Type':'application/json;odata=verbose'}
   });
-  // Power Automate HTTP trigger returns 202 Accepted (async) or 200 OK
-  if(!r.ok && r.status !== 202){
-    const txt = await r.text().catch(() => '');
-    throw new Error(`Flow ${flowKey} failed: ${r.status}. ${txt.slice(0,300)}`);
-  }
-  // Try to parse JSON response — some flows return data (e.g. new item ID)
-  try {
-    const text = await r.text();
-    return text ? JSON.parse(text) : {};
-  } catch(e) {
-    return {};
-  }
+  if(!r.ok) throw new Error(`Digest failed: ${r.status}`);
+  const d = await r.json();
+  _digest    = d.d.GetContextWebInformation.FormDigestValue;
+  _digestExp = Date.now() + 25*60*1000;
+  return _digest;
 }
-
-// ═══════════════════════════════════════════════════════════════
-//  SHAREPOINT READ HELPER (reads go direct — already works)
-// ═══════════════════════════════════════════════════════════════
 
 async function spGet(list, filter='', select=''){
   let url = `${SITE_URL}/_api/web/lists/getbytitle('${encodeURIComponent(list)}')/items?$top=5000`;
   if(filter) url += `&$filter=${encodeURIComponent(filter)}`;
   if(select) url += `&$select=${encodeURIComponent(select)}`;
-  const r = await fetch(url, {
-    credentials: 'include',
-    headers: { 'Accept': 'application/json;odata=verbose' }
+  const r = await fetch(url,{credentials:'include',headers:{'Accept':'application/json;odata=verbose'}});
+  if(!r.ok) throw new Error(`GET ${list} failed: ${r.status}`);
+  return (await r.json()).d.results;
+}
+
+const _typeCache = {};
+async function getType(list){
+  if(_typeCache[list]) return _typeCache[list];
+  const r = await fetch(`${SITE_URL}/_api/web/lists/getbytitle('${encodeURIComponent(list)}')?$select=ListItemEntityTypeFullName`,
+    {credentials:'include',headers:{'Accept':'application/json;odata=verbose'}});
+  _typeCache[list] = (await r.json()).d.ListItemEntityTypeFullName;
+  return _typeCache[list];
+}
+
+async function spCreate(list, data){
+  const digest = await getDigest();
+  const type   = await getType(list);
+  const r = await fetch(`${SITE_URL}/_api/web/lists/getbytitle('${encodeURIComponent(list)}')/items`,{
+    method:'POST', credentials:'include',
+    headers:{'Accept':'application/json;odata=verbose','Content-Type':'application/json;odata=verbose','X-RequestDigest':digest},
+    body: JSON.stringify({__metadata:{type},...data})
   });
-  if(!r.ok) throw new Error(`GET ${list} failed: ${r.status} ${r.statusText}`);
-  const d = await r.json();
-  return d.d.results;
+  if(!r.ok){const t=await r.text().catch(()=>''); throw new Error(`CREATE ${list} failed: ${r.status}. ${t.slice(0,200)}`);}
+  return (await r.json()).d;
+}
+
+async function spUpdate(list, id, data){
+  const digest = await getDigest();
+  const type   = await getType(list);
+  const r = await fetch(`${SITE_URL}/_api/web/lists/getbytitle('${encodeURIComponent(list)}')/items(${id})`,{
+    method:'POST', credentials:'include',
+    headers:{'Accept':'application/json;odata=verbose','Content-Type':'application/json;odata=verbose',
+             'X-RequestDigest':digest,'IF-MATCH':'*','X-HTTP-Method':'MERGE'},
+    body: JSON.stringify({__metadata:{type},...data})
+  });
+  if(!r.ok){const t=await r.text().catch(()=>''); throw new Error(`UPDATE ${list}(${id}) failed: ${r.status}. ${t.slice(0,200)}`);}
+}
+
+async function spDelete(list, id){
+  const digest = await getDigest();
+  const r = await fetch(`${SITE_URL}/_api/web/lists/getbytitle('${encodeURIComponent(list)}')/items(${id})`,{
+    method:'POST', credentials:'include',
+    headers:{'Accept':'application/json;odata=verbose','X-RequestDigest':digest,'IF-MATCH':'*','X-HTTP-Method':'DELETE'}
+  });
+  if(!r.ok){const t=await r.text().catch(()=>''); throw new Error(`DELETE ${list}(${id}) failed: ${r.status}. ${t.slice(0,200)}`);}
 }
 
 // ═══════════════════════════════════════════════════════════════
-//  STATUS & ERROR DISPLAY
+//  STATUS
 // ═══════════════════════════════════════════════════════════════
-let _statusTimer;
-function showStatus(msg, type='saving', duration=2500){
-  const bar = document.getElementById('status-bar');
-  const msgEl = document.getElementById('status-msg');
-  const spinner = document.getElementById('status-spinner');
-  bar.className = type==='error' ? 'error show' : type==='saving' ? 'saving show' : 'show';
-  msgEl.textContent = msg;
-  spinner.className = type==='saving' ? 'status-spinner show' : 'status-spinner';
-  clearTimeout(_statusTimer);
-  if(duration > 0) _statusTimer = setTimeout(() => bar.classList.remove('show'), duration);
+let _stTimer;
+function showStatus(msg, type='saving', dur=2500){
+  const bar=document.getElementById('status-bar');
+  const sp=document.getElementById('status-spinner');
+  bar.className = type==='error'?'error show':type==='saving'?'saving show':'show';
+  document.getElementById('status-msg').textContent = msg;
+  sp.className = type==='saving'?'status-spinner show':'status-spinner';
+  clearTimeout(_stTimer);
+  if(dur>0) _stTimer=setTimeout(()=>bar.classList.remove('show'),dur);
 }
-
-function showBanner(id, type, msg){
-  const el = document.getElementById(id);
-  if(!el) return;
-  el.className = 'result-banner ' + type;
-  el.innerHTML = msg;
-}
+function showBanner(id,type,msg){const el=document.getElementById(id);if(!el)return;el.className='result-banner '+type;el.innerHTML=msg;}
 
 // ═══════════════════════════════════════════════════════════════
-//  LOCAL CACHE — avoids re-fetching everything on every change
+//  CACHE & STATE
 // ═══════════════════════════════════════════════════════════════
-let cache = { settings:{}, campaigns:[], stages:[], milestones:[], blocks:[], budgetCols:[], budgetRows:[] };
-let jsonLoaded = false; // set to true when a JSON backup is loaded, pauses SharePoint sync
-let lastModifiedCheck = 0;
+let cache={settings:{},campaigns:[],stages:[],milestones:[],blocks:[],expenses:[]};
+let jsonLoaded=false, lastMod=0, _pollTimer;
 
 // ═══════════════════════════════════════════════════════════════
-//  INITIAL DATA LOAD
+//  LOAD ALL
 // ═══════════════════════════════════════════════════════════════
 async function loadAll(){
-  if(jsonLoaded){ showStatus('Using JSON backup — SharePoint sync paused', 'ok', 3000); return; }
-  showStatus('Loading plan…', 'saving', 0);
-  try {
-    const [settings, campaigns, stages, milestones, blocks, budgetColItems, budgetRows] = await Promise.all([
+  if(jsonLoaded){showStatus('Using JSON backup','ok',3000);return;}
+  showStatus('Loading plan…','saving',0);
+  try{
+    const [settings,campaigns,stages,milestones,blocks,expenses]=await Promise.all([
       spGet(LISTS.settings),
-      spGet(LISTS.campaigns, '', 'Id,Title,CampaignID,ColorIndex,SortOrder'),
-      spGet(LISTS.stages, '', 'Id,Title,StageID,CampaignID,StartDate,EndDate,SortOrder'),
-      spGet(LISTS.milestones, '', 'Id,Title,MilestoneID,CampaignID,MilestoneDate'),
-      spGet(LISTS.blocks, '', 'Id,Title,BlockID,CampaignID,BlockLabel,BlockText,SortOrder'),
-      spGet(LISTS.budgetCols, '', 'Id,Key,Value'),
-      spGet(LISTS.budget, '', 'Id,Title,RowID,SortOrder,ColData')
+      spGet(LISTS.campaigns,'','Id,Title,CampaignID,ColorIndex,SortOrder,CostCode,PlannedSpend'),
+      spGet(LISTS.stages,'','Id,Title,StageID,CampaignID,StartDate,EndDate,SortOrder'),
+      spGet(LISTS.milestones,'','Id,Title,MilestoneID,CampaignID,MilestoneDate'),
+      spGet(LISTS.blocks,'','Id,Title,BlockID,CampaignID,BlockLabel,BlockText,SortOrder'),
+      spGet(LISTS.expenses,'','Id,Title,ExpenseID,CampaignID,Amount,SortOrder')
     ]);
-
-    // Parse settings into a key-value map
-    cache.settings = {};
-    settings.forEach(s => { cache.settings[s.Title] = {id: s.Id, value: s.Value || ''}; });
-
-    cache.campaigns = campaigns.sort((a,b)=>(a.SortOrder||0)-(b.SortOrder||0));
-    cache.stages    = stages.sort((a,b)=>(a.SortOrder||0)-(b.SortOrder||0));
-    cache.milestones= milestones;
-    cache.blocks    = blocks.sort((a,b)=>(a.SortOrder||0)-(b.SortOrder||0));
-
-    // Budget columns
-    const colItem = budgetColItems.find(x => x.Key === 'columns');
-    cache.budgetCols = colItem ? JSON.parse(colItem.Value || '[]') : [];
-    cache.budgetColItemId = colItem ? colItem.Id : null;
-    cache.budgetRows = budgetRows.sort((a,b)=>(a.SortOrder||0)-(b.SortOrder||0)).map(r => ({
-      id: r.Id, rowId: r.RowID, sortOrder: r.SortOrder,
-      cells: JSON.parse(r.ColData || '[]')
-    }));
-
+    cache.settings={};
+    settings.forEach(s=>{cache.settings[s.Title]={id:s.Id,value:s.Value||''};});
+    cache.campaigns=campaigns.sort((a,b)=>(a.SortOrder||0)-(b.SortOrder||0));
+    cache.stages=stages.sort((a,b)=>(a.SortOrder||0)-(b.SortOrder||0));
+    cache.milestones=milestones;
+    cache.blocks=blocks.sort((a,b)=>(a.SortOrder||0)-(b.SortOrder||0));
+    cache.expenses=expenses.sort((a,b)=>(a.SortOrder||0)-(b.SortOrder||0));
     applySettings();
     renderCampaigns();
-    renderBudgetTable();
+    renderBudget();
     updateLastSync();
-    showStatus('Plan loaded', 'ok', 2000);
-    startPolling();
-  } catch(err){
-    showStatus('Error loading plan: ' + err.message + ' — check SITE_URL and that lists exist.', 'error', 0);
+    showStatus('Plan loaded','ok',2000);
+    _pollTimer=setInterval(checkUpdates,30000);
+  }catch(err){
+    showStatus('Error loading plan: '+err.message+' — check SITE_URL and list names.','error',0);
     console.error(err);
   }
 }
 
+async function checkUpdates(){
+  if(jsonLoaded)return;
+  try{
+    const items=await spGet(LISTS.campaigns,'','Id,Modified');
+    const latest=items.reduce((mx,i)=>Math.max(mx,new Date(i.Modified).getTime()),0);
+    if(lastMod&&latest>lastMod) document.getElementById('conflict-bar').classList.add('show');
+    lastMod=latest; updateLastSync();
+  }catch(e){}
+}
+function updateLastSync(){
+  const el=document.getElementById('last-sync-label');
+  if(el) el.textContent=new Date().toLocaleTimeString();
+  lastMod=Date.now();
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  SETTINGS
+// ═══════════════════════════════════════════════════════════════
 function applySettings(){
-  const s = cache.settings;
-  document.querySelectorAll('[data-spkey]').forEach(el => {
-    const key = el.getAttribute('data-spkey');
-    if(s[key]) el.innerHTML = s[key].value;
+  const s=cache.settings;
+  document.querySelectorAll('[data-spkey]').forEach(el=>{
+    const k=el.getAttribute('data-spkey');
+    if(s[k]) el.innerHTML=s[k].value;
   });
   updateNavLabels();
-  if(s['banner-img'] && s['banner-img'].value) applyBanner(s['banner-img'].value);
-  if(s['overview-content']) document.getElementById('overview-content').innerHTML = s['overview-content'].value;
-}
-
-// ═══════════════════════════════════════════════════════════════
-//  POLLING — detect changes by other users every 30 seconds
-// ═══════════════════════════════════════════════════════════════
-let _pollTimer;
-function startPolling(){
-  _pollTimer = setInterval(checkForUpdates, 30000);
-}
-
-async function checkForUpdates(){
-  if(jsonLoaded) return;
-  try {
-    const campaigns = await spGet(LISTS.campaigns, '', 'Id,Modified');
-    const stages    = await spGet(LISTS.stages, '', 'Id,Modified');
-    const settings  = await spGet(LISTS.settings, '', 'Id,Modified');
-    const allItems  = [...campaigns, ...stages, ...settings];
-    const latest = allItems.reduce((max, item) => {
-      const t = new Date(item.Modified).getTime();
-      return t > max ? t : max;
-    }, 0);
-    if(lastModifiedCheck && latest > lastModifiedCheck){
-      document.getElementById('conflict-bar').classList.add('show');
-    }
-    lastModifiedCheck = latest;
-    updateLastSync();
-  } catch(e){ /* silent fail on poll */ }
-}
-
-function updateLastSync(){
-  const el = document.getElementById('last-sync-label');
-  if(el) el.textContent = new Date().toLocaleTimeString();
-  lastModifiedCheck = Date.now();
-}
-
-// ═══════════════════════════════════════════════════════════════
-//  SETTINGS SAVE
-// ═══════════════════════════════════════════════════════════════
-async function saveSetting(key, value){
-  const existing = cache.settings[key];
-  showStatus('Saving…', 'saving', 0);
-  try {
-    const result = await paCall('saveSetting', {key, value, existingId: existing ? existing.id : null});
-    if(existing){
-      cache.settings[key].value = value;
-    } else {
-      // Flow returns {id: newItemId}
-      const newId = result.id || result.Id || 0;
-      cache.settings[key] = {id: newId, value};
-    }
-    showStatus('Saved', 'ok', 1800);
-  } catch(err){
-    showStatus('Save failed: ' + err.message, 'error', 5000);
+  if(s['banner-img']?.value) applyBannerSrc(s['banner-img'].value);
+  if(s['banner-pos']?.value){
+    const p=JSON.parse(s['banner-pos'].value);
+    setBannerPos(p.x,p.y,false);
   }
+  if(s['banner-brightness']?.value) setBrightness(s['banner-brightness'].value,false);
+  if(s['hero-height']?.value) setHeroHeight(s['hero-height'].value,false);
+  if(s['overview-content']?.value) document.getElementById('overview-content').innerHTML=s['overview-content'].value;
+}
+
+async function saveSetting(key,value){
+  if(jsonLoaded)return;
+  const ex=cache.settings[key];
+  showStatus('Saving…','saving',0);
+  try{
+    if(ex){await spUpdate(LISTS.settings,ex.id,{Value:value});cache.settings[key].value=value;}
+    else{const i=await spCreate(LISTS.settings,{Title:key,Value:value});cache.settings[key]={id:i.Id,value};}
+    showStatus('Saved','ok',1800);
+  }catch(err){showStatus('Save failed: '+err.message,'error',5000);}
 }
 
 // ═══════════════════════════════════════════════════════════════
 //  NAVIGATION
 // ═══════════════════════════════════════════════════════════════
-let currentSection = null;
-const SEC_DEFAULTS = ['Overview','Campaigns','Calendar','Budget Tracker'];
-
-function getSectionName(i){
-  const s = cache.settings['sec-name-'+i];
-  return (s && s.value) ? s.value.replace(/<[^>]+>/g,'') : SEC_DEFAULTS[i];
-}
-
+let currentSection=null;
+const SEC_DEFAULTS=['Overview','Campaigns','Calendar','Budget Tracker'];
+function getSectionName(i){const s=cache.settings['sec-name-'+i];return(s?.value||'').replace(/<[^>]+>/g,'')||SEC_DEFAULTS[i];}
 function updateNavLabels(){
-  [0,1,2,3].forEach(i => {
-    const btn = document.getElementById('snav-'+i);
-    if(btn) btn.textContent = getSectionName(i);
-  });
-  if(currentSection !== null){
-    document.getElementById('bc-current').textContent = getSectionName(currentSection);
-  }
+  [0,1,2,3].forEach(i=>{const b=document.getElementById('snav-'+i);if(b)b.textContent=getSectionName(i);});
+  if(currentSection!==null) document.getElementById('bc-current').textContent=getSectionName(currentSection);
 }
 
 function goHome(){
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  const home = document.getElementById('home');
-  home.classList.add('active');
-  home.scrollTop = 0;
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  const h=document.getElementById('home');h.classList.add('active');h.scrollTop=0;
   document.getElementById('top-nav').classList.remove('visible');
-  document.querySelectorAll('.nav-sec-btn').forEach(b => b.classList.remove('active'));
-  document.getElementById('bc-sep').style.display = 'none';
-  currentSection = null;
+  document.querySelectorAll('.nav-sec-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('bc-sep').style.display='none';
+  currentSection=null;
 }
 
 function openSection(i){
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  const screen = document.getElementById('sec-'+i);
-  screen.classList.add('active');
-  screen.scrollTop = 0;
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  const sc=document.getElementById('sec-'+i);sc.classList.add('active');sc.scrollTop=0;
   document.getElementById('top-nav').classList.add('visible');
-  document.querySelectorAll('.nav-sec-btn').forEach((b,j) => b.classList.toggle('active', j===i));
-  document.getElementById('bc-sep').style.display = '';
-  document.getElementById('bc-current').textContent = getSectionName(i);
-  currentSection = i;
-  if(i===2) renderCalendar();
+  document.querySelectorAll('.nav-sec-btn').forEach((b,j)=>b.classList.toggle('active',j===i));
+  document.getElementById('bc-sep').style.display='';
+  document.getElementById('bc-current').textContent=getSectionName(i);
+  currentSection=i;
+  if(i===2)renderCalendar();
+  if(i===3)renderBudget();
 }
 
 // ═══════════════════════════════════════════════════════════════
-//  BANNER IMAGE
+//  BANNER IMAGE CONTROLS
 // ═══════════════════════════════════════════════════════════════
-document.getElementById('banner-input').addEventListener('change', e => {
-  const file = e.target.files[0]; if(!file) return;
-  const reader = new FileReader();
-  reader.onload = ev => { applyBanner(ev.target.result); saveSetting('banner-img', ev.target.result); };
-  reader.readAsDataURL(file);
+document.getElementById('banner-input').addEventListener('change',e=>{
+  const f=e.target.files[0];if(!f)return;
+  const reader=new FileReader();
+  reader.onload=ev=>{applyBannerSrc(ev.target.result);saveSetting('banner-img',ev.target.result);};
+  reader.readAsDataURL(f);
 });
-function applyBanner(src){
-  const b = document.getElementById('hero-banner');
-  let img = b.querySelector('img');
-  if(!img){ img = document.createElement('img'); b.prepend(img); }
-  img.src = src;
-  document.getElementById('banner-prompt').style.opacity = '0';
+
+function applyBannerSrc(src){
+  const b=document.getElementById('hero-banner');
+  let img=b.querySelector('img');
+  if(!img){img=document.createElement('img');b.prepend(img);}
+  img.src=src;
+  document.getElementById('banner-hint').style.display='none';
+  document.getElementById('pos-reset-btn').style.display='';
+  // Enable drag-to-reposition
+  enableBannerDrag(img);
+}
+
+function enableBannerDrag(img){
+  let dragging=false,sx,sy,px=50,py=50;
+  // Load saved position
+  try{const p=cache.settings['banner-pos'];if(p){const v=JSON.parse(p.value);px=v.x;py=v.y;}}catch(e){}
+  img.style.cursor='grab';
+  img.addEventListener('mousedown',e=>{
+    e.preventDefault();dragging=true;sx=e.clientX;sy=e.clientY;img.style.cursor='grabbing';
+  });
+  document.addEventListener('mousemove',e=>{
+    if(!dragging)return;
+    px=Math.max(0,Math.min(100,px-(e.clientX-sx)*0.15));
+    py=Math.max(0,Math.min(100,py-(e.clientY-sy)*0.15));
+    sx=e.clientX;sy=e.clientY;
+    setBannerPos(px,py,false);
+  });
+  document.addEventListener('mouseup',()=>{
+    if(!dragging)return;
+    dragging=false;img.style.cursor='grab';
+    saveSetting('banner-pos',JSON.stringify({x:px,y:py}));
+  });
+}
+
+function setBannerPos(x,y,save=true){
+  document.getElementById('hero-banner').style.setProperty('--img-pos-x',x+'%');
+  document.getElementById('hero-banner').style.setProperty('--img-pos-y',y+'%');
+  if(save)saveSetting('banner-pos',JSON.stringify({x,y}));
+}
+
+function resetBannerPos(){setBannerPos(50,50);saveSetting('banner-pos',JSON.stringify({x:50,y:50}));}
+
+let _brightPanel=false,_heightPanel=false;
+function toggleBrightPanel(){
+  _brightPanel=!_brightPanel;_heightPanel=false;
+  document.getElementById('bright-panel').classList.toggle('open',_brightPanel);
+  document.getElementById('height-panel').classList.remove('open');
+}
+function toggleHeightPanel(){
+  _heightPanel=!_heightPanel;_brightPanel=false;
+  document.getElementById('height-panel').classList.toggle('open',_heightPanel);
+  document.getElementById('bright-panel').classList.remove('open');
+}
+
+function setBrightness(val,save=true){
+  document.getElementById('hero-banner').style.setProperty('--img-brightness',val/100);
+  document.getElementById('bright-slider').value=val;
+  document.getElementById('bright-val').textContent=val+'%';
+  if(save)saveSetting('banner-brightness',String(val));
+}
+
+function setHeroHeight(val,save=true){
+  document.getElementById('hero').style.height=val+'px';
+  document.getElementById('height-slider').value=val;
+  document.getElementById('height-val').textContent=val+'px';
+  if(save)saveSetting('hero-height',String(val));
 }
 
 // ═══════════════════════════════════════════════════════════════
-//  SECTION 1 — OVERVIEW WORD IMPORT
+//  OVERVIEW WORD IMPORT
 // ═══════════════════════════════════════════════════════════════
-const ovDz = document.getElementById('overview-dz');
-ovDz.addEventListener('dragover', e => { e.preventDefault(); ovDz.classList.add('drag-over'); });
-ovDz.addEventListener('dragleave', () => ovDz.classList.remove('drag-over'));
-ovDz.addEventListener('drop', e => { e.preventDefault(); ovDz.classList.remove('drag-over'); importWord(e.dataTransfer.files[0]); });
-document.getElementById('overview-input').addEventListener('change', e => { if(e.target.files[0]) importWord(e.target.files[0]); });
-
+const ovDz=document.getElementById('overview-dz');
+ovDz.addEventListener('dragover',e=>{e.preventDefault();ovDz.classList.add('drag-over');});
+ovDz.addEventListener('dragleave',()=>ovDz.classList.remove('drag-over'));
+ovDz.addEventListener('drop',e=>{e.preventDefault();ovDz.classList.remove('drag-over');importWord(e.dataTransfer.files[0]);});
+document.getElementById('overview-input').addEventListener('change',e=>{if(e.target.files[0])importWord(e.target.files[0]);});
 async function importWord(file){
-  if(!file || !file.name.match(/\.docx?$/i)){ showBanner('overview-result','error','Please select a .docx file.'); return; }
-  try {
-    const ab = await file.arrayBuffer();
-    const result = await mammoth.convertToHtml({arrayBuffer: ab});
-    document.getElementById('overview-content').innerHTML = result.value;
-    await saveSetting('overview-content', result.value);
+  if(!file||!file.name.match(/\.docx?$/i)){showBanner('overview-result','error','Please select a .docx file.');return;}
+  try{
+    const ab=await file.arrayBuffer();
+    const result=await mammoth.convertToHtml({arrayBuffer:ab});
+    document.getElementById('overview-content').innerHTML=result.value;
+    await saveSetting('overview-content',result.value);
     showBanner('overview-result','success','✓ Document imported and saved.');
-  } catch(err){ showBanner('overview-result','error','Could not read file: '+err.message); }
+  }catch(err){showBanner('overview-result','error','Could not read file: '+err.message);}
 }
 
 // ═══════════════════════════════════════════════════════════════
 //  UTILITIES
 // ═══════════════════════════════════════════════════════════════
-function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,6); }
-function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
-const PALETTE = ['#2d6e4e','#7b3f00','#1a4a7a','#5a1a6e','#7a4a00','#1a5a4a','#6e2d2d','#2d4a6e','#4a6e2d','#6e4a2d'];
-function campColor(idx){ return PALETTE[idx % PALETTE.length]; }
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6);}
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function fmt(n){return Number(n||0).toLocaleString('en-NZ',{minimumFractionDigits:2,maximumFractionDigits:2});}
+const PALETTE=['#2d6e4e','#7b3f00','#1a4a7a','#5a1a6e','#7a4a00','#1a5a4a','#6e2d2d','#2d4a6e','#4a6e2d','#6e4a2d'];
+function campColor(i){return PALETTE[i%PALETTE.length];}
 
 // ═══════════════════════════════════════════════════════════════
-//  SECTION 2 — CAMPAIGNS
+//  CAMPAIGNS
 // ═══════════════════════════════════════════════════════════════
 function renderCampaigns(){
-  const grid = document.getElementById('campaigns-grid');
+  const grid=document.getElementById('campaigns-grid');
   if(!cache.campaigns.length){
-    grid.innerHTML = '<p style="font-size:14px;color:var(--stone);font-weight:300;padding:4px 0 16px;">No campaigns yet — add one below.</p>';
+    grid.innerHTML='<p style="font-size:14px;color:var(--stone);font-weight:300;padding:4px 0 14px;">No campaigns yet — add one below.</p>';
     return;
   }
-  grid.innerHTML = cache.campaigns.map((c, ci) => {
-    const color = campColor(ci);
-    const stages = cache.stages.filter(s => s.CampaignID === c.CampaignID);
-    const miles  = cache.milestones.filter(m => m.CampaignID === c.CampaignID);
-    const blocks = cache.blocks.filter(b => b.CampaignID === c.CampaignID);
-    // Find earliest start and latest end across all stages
-    const stageDates = stages.filter(s=>s.StartDate).map(s=>s.StartDate);
-    const stageEnds  = stages.filter(s=>s.EndDate).map(s=>s.EndDate);
-    const dateRange  = stageDates.length ? ` · ${stageDates[0]}${stageEnds.length?' → '+stageEnds[stageEnds.length-1]:''}` : '';
-    const meta   = `${stages.length} stage${stages.length!==1?'s':''} · ${miles.length} milestone${miles.length!==1?'s':''}${dateRange}`;
+  grid.innerHTML=cache.campaigns.map((c,ci)=>{
+    const color=campColor(ci);
+    const stages=cache.stages.filter(s=>s.CampaignID===c.CampaignID);
+    const miles=cache.milestones.filter(m=>m.CampaignID===c.CampaignID);
+    const blocks=cache.blocks.filter(b=>b.CampaignID===c.CampaignID);
+    const expenses=cache.expenses.filter(e=>e.CampaignID===c.CampaignID);
+    const totalActual=expenses.reduce((s,e)=>s+Number(e.Amount||0),0);
+    const planned=Number(c.PlannedSpend||0);
+    const stageDates=stages.filter(s=>s.StartDate).map(s=>s.StartDate);
+    const stageEnds=stages.filter(s=>s.EndDate).map(s=>s.EndDate);
+    const dateRange=stageDates.length?` · ${stageDates[0]}${stageEnds.length?' → '+stageEnds[stageEnds.length-1]:''}` : '';
+    const meta=`${stages.length} stage${stages.length!==1?'s':''} · ${miles.length} milestone${miles.length!==1?'s':''}${dateRange}`;
 
-    const stagesHTML = stages.map(s => `
+    const stagesHTML=stages.map(s=>`
       <div class="stage-row">
-        <input class="stage-name-input" value="${esc(s.Title||'')}" placeholder="Stage name"
+        <input class="row-input" value="${esc(s.Title||'')}" placeholder="Stage name"
           onchange="updateStage(${s.Id},'Title',this.value,'${c.CampaignID}')">
         <span class="date-lbl">Start</span>
-        <input class="date-input" value="${esc(s.StartDate||'')}" placeholder="DD/MM/YY"
+        <input class="row-input" value="${esc(s.StartDate||'')}" placeholder="DD/MM/YY"
           onchange="updateStage(${s.Id},'StartDate',this.value,'${c.CampaignID}')">
         <span class="date-lbl">End</span>
-        <input class="date-input" value="${esc(s.EndDate||'')}" placeholder="DD/MM/YY"
+        <input class="row-input" value="${esc(s.EndDate||'')}" placeholder="DD/MM/YY"
           onchange="updateStage(${s.Id},'EndDate',this.value,'${c.CampaignID}')">
         <button class="row-del" onclick="deleteStage(${s.Id},'${c.CampaignID}')">✕</button>
       </div>`).join('');
 
-    const msHTML = miles.map(m => `
+    const msHTML=miles.map(m=>`
       <div class="ms-row">
         <span class="ms-icon">⭐</span>
-        <input class="ms-name-input" value="${esc(m.Title||'')}" placeholder="Milestone name"
+        <input class="row-input" value="${esc(m.Title||'')}" placeholder="Milestone name"
           onchange="updateMilestone(${m.Id},'Title',this.value,'${c.CampaignID}')">
-        <input class="ms-date-input" value="${esc(m.MilestoneDate||'')}" placeholder="DD/MM/YY"
+        <input class="row-input" value="${esc(m.MilestoneDate||'')}" placeholder="DD/MM/YY"
           onchange="updateMilestone(${m.Id},'MilestoneDate',this.value,'${c.CampaignID}')">
         <button class="row-del" onclick="deleteMilestone(${m.Id},'${c.CampaignID}')">✕</button>
       </div>`).join('');
 
-    const blocksHTML = blocks.map(b => `
+    const expHTML=expenses.map(e=>`
+      <div class="expense-row">
+        <input class="row-input" value="${esc(e.Title||'')}" placeholder="Expense description"
+          onchange="updateExpense(${e.Id},'Title',this.value,'${c.CampaignID}')">
+        <input class="row-input expense-amount" type="number" value="${e.Amount||''}" placeholder="$0.00"
+          onchange="updateExpense(${e.Id},'Amount',this.value,'${c.CampaignID}')">
+        <button class="row-del" onclick="deleteExpense(${e.Id},'${c.CampaignID}')">✕</button>
+      </div>`).join('');
+
+    const blocksHTML=blocks.map(b=>`
       <div class="cblock">
         <div class="cblock-lbl" contenteditable="true" spellcheck="false"
           onblur="updateBlock(${b.Id},'BlockLabel',this.innerText,'${c.CampaignID}')">${esc(b.BlockLabel||'Section')}</div>
@@ -834,196 +897,280 @@ function renderCampaigns(){
           <button class="campaign-del-btn" onclick="event.stopPropagation();deleteCampaign(${c.Id},'${c.CampaignID}')">✕</button>
         </div>
         <div class="campaign-body">
-          <div class="camp-section-lbl">Stages</div>
-          <div class="stages-list" id="stages-${c.CampaignID}">${stagesHTML}</div>
-          <button class="add-btn" style="margin-bottom:4px" onclick="addStage('${c.CampaignID}',${ci})">＋ Add stage</button>
-          <div class="camp-section-lbl" style="margin-top:18px;">Milestones</div>
-          <div class="ms-list" id="ms-${c.CampaignID}">${msHTML}</div>
-          <button class="add-btn add-btn-gold" style="margin-bottom:4px" onclick="addMilestone('${c.CampaignID}')">＋ Add milestone</button>
-          <div class="camp-section-lbl" style="margin-top:18px;">Content</div>
+
+          <div class="camp-lbl">Campaign Details</div>
+          <div class="camp-meta-row">
+            <div class="camp-field">
+              <div class="camp-field-lbl">Cost Code</div>
+              <input class="camp-field-input" value="${esc(c.CostCode||'')}" placeholder="e.g. CC-2026-001"
+                onchange="updateCampaign(${c.Id},'CostCode',this.value)">
+            </div>
+            <div class="camp-field">
+              <div class="camp-field-lbl">Planned Spend ($)</div>
+              <input class="camp-field-input" type="number" value="${c.PlannedSpend||''}" placeholder="0.00"
+                onchange="updateCampaign(${c.Id},'PlannedSpend',this.value)">
+            </div>
+            <div class="camp-field">
+              <div class="camp-field-lbl">Actual Spend (auto)</div>
+              <div class="camp-field-input" style="background:var(--white);cursor:default;color:${totalActual>(planned||Infinity)?'var(--red)':'var(--forest)'};font-weight:600;">
+                $${fmt(totalActual)}${planned?` / $${fmt(planned)}`:''}
+              </div>
+            </div>
+          </div>
+
+          <div class="camp-lbl" style="margin-top:16px;">Stages</div>
+          <div class="stages-list" id="stages-${c.CampaignID}">${stagesHTML||'<p style="font-size:12px;color:var(--stone);padding:2px 0 4px;">No stages yet.</p>'}</div>
+          <button class="add-btn" onclick="addStage('${c.CampaignID}')">＋ Add stage</button>
+
+          <div class="camp-lbl" style="margin-top:16px;">Milestones</div>
+          <div class="ms-list" id="ms-${c.CampaignID}">${msHTML||'<p style="font-size:12px;color:var(--stone);padding:2px 0 4px;">No milestones yet.</p>'}</div>
+          <button class="add-btn add-btn-gold" onclick="addMilestone('${c.CampaignID}')">＋ Add milestone</button>
+
+          <div class="camp-lbl" style="margin-top:16px;">Expenses</div>
+          <div id="exp-${c.CampaignID}">${expHTML||'<p style="font-size:12px;color:var(--stone);padding:2px 0 4px;">No expenses yet.</p>'}</div>
+          <button class="add-btn add-btn-expense" onclick="addExpense('${c.CampaignID}')">＋ Add expense</button>
+
+          <div class="camp-lbl" style="margin-top:16px;">Content</div>
           <div class="content-blocks" id="blocks-${c.CampaignID}">${blocksHTML}</div>
-          <button class="add-btn" onclick="addBlock('${c.CampaignID}',${ci})">＋ Add section</button>
+          <button class="add-btn" onclick="addBlock('${c.CampaignID}')">＋ Add section</button>
         </div>
       </div>`;
   }).join('');
 }
 
-function toggleCamp(cid){
-  document.getElementById('camp-'+cid)?.classList.toggle('open');
-}
+function toggleCamp(cid){document.getElementById('camp-'+cid)?.classList.toggle('open');}
 
 async function addCampaign(){
   showStatus('Adding campaign…','saving',0);
-  try {
-    const cid = uid();
-    const sortOrder = cache.campaigns.length;
-    const b1id = uid(); const b2id = uid();
-    const result = await paCall('createCampaign', {
-      campaignId: cid, title: 'New Campaign', colorIndex: sortOrder, sortOrder,
-      defaultBlocks: [
-        {blockId: b1id, label: 'Objective', text: '', sortOrder: 0},
-        {blockId: b2id, label: 'Audience',  text: '', sortOrder: 1}
-      ]
-    });
-    const campSpId  = result.campaignId  || 0;
-    const block1SpId = result.block1Id   || 0;
-    const block2SpId = result.block2Id   || 0;
-    cache.campaigns.push({Id:campSpId,  Title:'New Campaign', CampaignID:cid, ColorIndex:sortOrder, SortOrder:sortOrder});
-    cache.blocks.push(
-      {Id:block1SpId, Title:'Objective', BlockID:b1id, CampaignID:cid, BlockLabel:'Objective', BlockText:'', SortOrder:0},
-      {Id:block2SpId, Title:'Audience',  BlockID:b2id, CampaignID:cid, BlockLabel:'Audience',  BlockText:'', SortOrder:1}
-    );
+  try{
+    const cid=uid();const so=cache.campaigns.length;
+    const item=await spCreate(LISTS.campaigns,{Title:'New Campaign',CampaignID:cid,ColorIndex:so,SortOrder:so,CostCode:'',PlannedSpend:0});
+    const b1=await spCreate(LISTS.blocks,{Title:'Objective',BlockID:uid(),CampaignID:cid,BlockLabel:'Objective',BlockText:'',SortOrder:0});
+    const b2=await spCreate(LISTS.blocks,{Title:'Audience',BlockID:uid(),CampaignID:cid,BlockLabel:'Audience',BlockText:'',SortOrder:1});
+    cache.campaigns.push({Id:item.Id,Title:'New Campaign',CampaignID:cid,ColorIndex:so,SortOrder:so,CostCode:'',PlannedSpend:0});
+    cache.blocks.push({Id:b1.Id,Title:'Objective',BlockID:b1.BlockID,CampaignID:cid,BlockLabel:'Objective',BlockText:'',SortOrder:0});
+    cache.blocks.push({Id:b2.Id,Title:'Audience',BlockID:b2.BlockID,CampaignID:cid,BlockLabel:'Audience',BlockText:'',SortOrder:1});
     renderCampaigns();
-    setTimeout(() => { document.getElementById('camp-'+cid)?.scrollIntoView({behavior:'smooth',block:'center'}); toggleCamp(cid); }, 80);
+    setTimeout(()=>{document.getElementById('camp-'+cid)?.scrollIntoView({behavior:'smooth',block:'center'});toggleCamp(cid);},80);
     showStatus('Campaign added','ok',1800);
-  } catch(err){ showStatus('Error: '+err.message,'error',5000); }
+  }catch(err){showStatus('Error: '+err.message,'error',5000);}
 }
 
-async function updateCampaign(id, field, value){
+async function updateCampaign(id,field,value){
   showStatus('Saving…','saving',0);
-  try {
-    await paCall('updateCampaign', {id, field, value});
-    const c = cache.campaigns.find(x => x.Id===id);
-    if(c) c[field] = value;
+  try{
+    await spUpdate(LISTS.campaigns,id,{[field]:field==='PlannedSpend'?Number(value):value});
+    const c=cache.campaigns.find(x=>x.Id===id);if(c)c[field]=value;
+    renderBudget();
     showStatus('Saved','ok',1800);
-  } catch(err){ showStatus('Save failed: '+err.message,'error',4000); }
+  }catch(err){showStatus('Save failed: '+err.message,'error',4000);}
 }
 
-async function deleteCampaign(id, cid){
+async function deleteCampaign(id,cid){
   showStatus('Deleting…','saving',0);
-  try {
-    // Delete campaign + all related items
-    const relatedStages = cache.stages.filter(s => s.CampaignID===cid);
-    const relatedMiles  = cache.milestones.filter(m => m.CampaignID===cid);
-    const relatedBlocks = cache.blocks.filter(b => b.CampaignID===cid);
-    await paCall('deleteCampaign', {
-      campaignSpId: id,
-      stageIds:     relatedStages.map(s => s.Id),
-      milestoneIds: relatedMiles.map(m => m.Id),
-      blockIds:     relatedBlocks.map(b => b.Id)
-    });
-    cache.campaigns = cache.campaigns.filter(c => c.Id!==id);
-    cache.stages    = cache.stages.filter(s => s.CampaignID!==cid);
-    cache.milestones= cache.milestones.filter(m => m.CampaignID!==cid);
-    cache.blocks    = cache.blocks.filter(b => b.CampaignID!==cid);
-    renderCampaigns();
+  try{
+    const rs=cache.stages.filter(s=>s.CampaignID===cid);
+    const rm=cache.milestones.filter(m=>m.CampaignID===cid);
+    const rb=cache.blocks.filter(b=>b.CampaignID===cid);
+    const re=cache.expenses.filter(e=>e.CampaignID===cid);
+    await Promise.all([spDelete(LISTS.campaigns,id),...rs.map(s=>spDelete(LISTS.stages,s.Id)),...rm.map(m=>spDelete(LISTS.milestones,m.Id)),...rb.map(b=>spDelete(LISTS.blocks,b.Id)),...re.map(e=>spDelete(LISTS.expenses,e.Id))]);
+    cache.campaigns=cache.campaigns.filter(c=>c.Id!==id);
+    cache.stages=cache.stages.filter(s=>s.CampaignID!==cid);
+    cache.milestones=cache.milestones.filter(m=>m.CampaignID!==cid);
+    cache.blocks=cache.blocks.filter(b=>b.CampaignID!==cid);
+    cache.expenses=cache.expenses.filter(e=>e.CampaignID!==cid);
+    renderCampaigns();renderBudget();
     showStatus('Deleted','ok',1800);
-  } catch(err){ showStatus('Delete failed: '+err.message,'error',5000); }
+  }catch(err){showStatus('Delete failed: '+err.message,'error',5000);}
 }
 
-async function addStage(cid, ci){
-  showStatus('Adding stage…','saving',0);
-  try {
-    const sortOrder = cache.stages.filter(s => s.CampaignID===cid).length;
-    const stageId = uid();
-    const result = await paCall('createStage', {stageId, campaignId: cid, title: 'New Stage', startDate: '', endDate: '', sortOrder});
-    const spId = result.id || result.Id || 0;
-    cache.stages.push({Id:spId, Title:'New Stage', StageID:stageId, CampaignID:cid, StartDate:'', EndDate:'', SortOrder:sortOrder});
-    renderCampaigns(); document.getElementById('camp-'+cid)?.classList.add('open');
+async function addStage(cid){
+  showStatus('Adding…','saving',0);
+  try{
+    const so=cache.stages.filter(s=>s.CampaignID===cid).length;
+    const item=await spCreate(LISTS.stages,{Title:'New Stage',StageID:uid(),CampaignID:cid,StartDate:'',EndDate:'',SortOrder:so});
+    cache.stages.push({Id:item.Id,Title:'New Stage',StageID:item.StageID,CampaignID:cid,StartDate:'',EndDate:'',SortOrder:so});
+    renderCampaigns();document.getElementById('camp-'+cid)?.classList.add('open');
     showStatus('Stage added','ok',1800);
-  } catch(err){ showStatus('Error: '+err.message,'error',4000); }
+  }catch(err){showStatus('Error: '+err.message,'error',4000);}
 }
-
-async function updateStage(id, field, value, cid){
+async function updateStage(id,field,value,cid){
   showStatus('Saving…','saving',0);
-  try {
-    await paCall('updateStage', {id, field, value});
-    const s = cache.stages.find(x => x.Id===id);
-    if(s) s[field] = value;
-    showStatus('Saved','ok',1800);
-  } catch(err){ showStatus('Save failed: '+err.message,'error',4000); }
+  try{await spUpdate(LISTS.stages,id,{[field]:value});const s=cache.stages.find(x=>x.Id===id);if(s)s[field]=value;showStatus('Saved','ok',1800);}
+  catch(err){showStatus('Save failed: '+err.message,'error',4000);}
 }
-
-async function deleteStage(id, cid){
+async function deleteStage(id,cid){
   showStatus('Deleting…','saving',0);
-  try {
-    await paCall('deleteStage', {id});
-    cache.stages = cache.stages.filter(s => s.Id!==id);
-    renderCampaigns(); document.getElementById('camp-'+cid)?.classList.add('open');
-    showStatus('Deleted','ok',1800);
-  } catch(err){ showStatus('Delete failed: '+err.message,'error',4000); }
+  try{await spDelete(LISTS.stages,id);cache.stages=cache.stages.filter(s=>s.Id!==id);renderCampaigns();document.getElementById('camp-'+cid)?.classList.add('open');showStatus('Deleted','ok',1800);}
+  catch(err){showStatus('Delete failed: '+err.message,'error',4000);}
 }
 
 async function addMilestone(cid){
-  showStatus('Adding milestone…','saving',0);
-  try {
-    const msId = uid();
-    const result = await paCall('createMilestone', {milestoneId: msId, campaignId: cid, title: 'New Milestone', date: ''});
-    const spId = result.id || result.Id || 0;
-    cache.milestones.push({Id:spId, Title:'New Milestone', MilestoneID:msId, CampaignID:cid, MilestoneDate:''});
-    renderCampaigns(); document.getElementById('camp-'+cid)?.classList.add('open');
+  showStatus('Adding…','saving',0);
+  try{
+    const item=await spCreate(LISTS.milestones,{Title:'New Milestone',MilestoneID:uid(),CampaignID:cid,MilestoneDate:''});
+    cache.milestones.push({Id:item.Id,Title:'New Milestone',MilestoneID:item.MilestoneID,CampaignID:cid,MilestoneDate:''});
+    renderCampaigns();document.getElementById('camp-'+cid)?.classList.add('open');
     showStatus('Milestone added','ok',1800);
-  } catch(err){ showStatus('Error: '+err.message,'error',4000); }
+  }catch(err){showStatus('Error: '+err.message,'error',4000);}
 }
-
-async function updateMilestone(id, field, value, cid){
+async function updateMilestone(id,field,value,cid){
   showStatus('Saving…','saving',0);
-  try {
-    await paCall('updateMilestone', {id, field, value});
-    const m = cache.milestones.find(x => x.Id===id);
-    if(m) m[field] = value;
-    showStatus('Saved','ok',1800);
-  } catch(err){ showStatus('Save failed: '+err.message,'error',4000); }
+  try{await spUpdate(LISTS.milestones,id,{[field]:value});const m=cache.milestones.find(x=>x.Id===id);if(m)m[field]=value;showStatus('Saved','ok',1800);}
+  catch(err){showStatus('Save failed: '+err.message,'error',4000);}
 }
-
-async function deleteMilestone(id, cid){
+async function deleteMilestone(id,cid){
   showStatus('Deleting…','saving',0);
-  try {
-    await paCall('deleteMilestone', {id});
-    cache.milestones = cache.milestones.filter(m => m.Id!==id);
-    renderCampaigns(); document.getElementById('camp-'+cid)?.classList.add('open');
-    showStatus('Deleted','ok',1800);
-  } catch(err){ showStatus('Delete failed: '+err.message,'error',4000); }
+  try{await spDelete(LISTS.milestones,id);cache.milestones=cache.milestones.filter(m=>m.Id!==id);renderCampaigns();document.getElementById('camp-'+cid)?.classList.add('open');showStatus('Deleted','ok',1800);}
+  catch(err){showStatus('Delete failed: '+err.message,'error',4000);}
 }
 
-async function updateBlock(id, field, value, cid){
+// EXPENSES
+async function addExpense(cid){
+  showStatus('Adding…','saving',0);
+  try{
+    const so=cache.expenses.filter(e=>e.CampaignID===cid).length;
+    const item=await spCreate(LISTS.expenses,{Title:'New Expense',ExpenseID:uid(),CampaignID:cid,Amount:0,SortOrder:so});
+    cache.expenses.push({Id:item.Id,Title:'New Expense',ExpenseID:item.ExpenseID,CampaignID:cid,Amount:0,SortOrder:so});
+    renderCampaigns();document.getElementById('camp-'+cid)?.classList.add('open');
+    renderBudget();
+    showStatus('Expense added','ok',1800);
+  }catch(err){showStatus('Error: '+err.message,'error',4000);}
+}
+async function updateExpense(id,field,value,cid){
   showStatus('Saving…','saving',0);
-  try {
-    await paCall('updateBlock', {id, field, value});
-    const b = cache.blocks.find(x => x.Id===id);
-    if(b) b[field] = value;
+  try{
+    await spUpdate(LISTS.expenses,id,{[field]:field==='Amount'?Number(value):value});
+    const e=cache.expenses.find(x=>x.Id===id);if(e)e[field]=field==='Amount'?Number(value):value;
+    renderBudget();
     showStatus('Saved','ok',1800);
-  } catch(err){ showStatus('Save failed: '+err.message,'error',4000); }
+  }catch(err){showStatus('Save failed: '+err.message,'error',4000);}
+}
+async function deleteExpense(id,cid){
+  showStatus('Deleting…','saving',0);
+  try{
+    await spDelete(LISTS.expenses,id);
+    cache.expenses=cache.expenses.filter(e=>e.Id!==id);
+    renderCampaigns();document.getElementById('camp-'+cid)?.classList.add('open');
+    renderBudget();
+    showStatus('Deleted','ok',1800);
+  }catch(err){showStatus('Delete failed: '+err.message,'error',4000);}
 }
 
-async function addBlock(cid, ci){
-  showStatus('Adding section…','saving',0);
-  try {
-    const sortOrder = cache.blocks.filter(b => b.CampaignID===cid).length;
-    const blockId = uid();
-    const result = await paCall('createBlock', {blockId, campaignId: cid, label: 'Section', text: '', sortOrder});
-    const spId = result.id || result.Id || 0;
-    cache.blocks.push({Id:spId, Title:'Section', BlockID:blockId, CampaignID:cid, BlockLabel:'Section', BlockText:'', SortOrder:sortOrder});
-    renderCampaigns(); document.getElementById('camp-'+cid)?.classList.add('open');
+async function updateBlock(id,field,value,cid){
+  showStatus('Saving…','saving',0);
+  try{await spUpdate(LISTS.blocks,id,{[field]:value});const b=cache.blocks.find(x=>x.Id===id);if(b)b[field]=value;showStatus('Saved','ok',1800);}
+  catch(err){showStatus('Save failed: '+err.message,'error',4000);}
+}
+async function addBlock(cid){
+  showStatus('Adding…','saving',0);
+  try{
+    const so=cache.blocks.filter(b=>b.CampaignID===cid).length;
+    const item=await spCreate(LISTS.blocks,{Title:'Section',BlockID:uid(),CampaignID:cid,BlockLabel:'Section',BlockText:'',SortOrder:so});
+    cache.blocks.push({Id:item.Id,Title:'Section',BlockID:item.BlockID,CampaignID:cid,BlockLabel:'Section',BlockText:'',SortOrder:so});
+    renderCampaigns();document.getElementById('camp-'+cid)?.classList.add('open');
     showStatus('Section added','ok',1800);
-  } catch(err){ showStatus('Error: '+err.message,'error',4000); }
+  }catch(err){showStatus('Error: '+err.message,'error',4000);}
 }
-
-async function deleteBlock(id, cid){
+async function deleteBlock(id,cid){
   showStatus('Deleting…','saving',0);
-  try {
-    await paCall('deleteBlock', {id});
-    cache.blocks = cache.blocks.filter(b => b.Id!==id);
-    renderCampaigns(); document.getElementById('camp-'+cid)?.classList.add('open');
-    showStatus('Deleted','ok',1800);
-  } catch(err){ showStatus('Delete failed: '+err.message,'error',4000); }
+  try{await spDelete(LISTS.blocks,id);cache.blocks=cache.blocks.filter(b=>b.Id!==id);renderCampaigns();document.getElementById('camp-'+cid)?.classList.add('open');showStatus('Deleted','ok',1800);}
+  catch(err){showStatus('Delete failed: '+err.message,'error',4000);}
 }
 
 // ═══════════════════════════════════════════════════════════════
-//  SECTION 3 — CALENDAR
+//  BUDGET TRACKER (auto-generated from campaign data)
+// ═══════════════════════════════════════════════════════════════
+function renderBudget(){
+  if(document.getElementById('sec-3').style.display==='none'&&!document.getElementById('sec-3').classList.contains('active'))return;
+
+  const camps=cache.campaigns;
+  let totalPlanned=0,totalActual=0;
+
+  // Summary cards
+  camps.forEach(c=>{
+    totalPlanned+=Number(c.PlannedSpend||0);
+    totalActual+=cache.expenses.filter(e=>e.CampaignID===c.CampaignID).reduce((s,e)=>s+Number(e.Amount||0),0);
+  });
+  const variance=totalPlanned-totalActual;
+
+  document.getElementById('budget-summary').innerHTML=`
+    <div class="budget-stat">
+      <div class="budget-stat-lbl">Total Planned</div>
+      <div class="budget-stat-val">$${fmt(totalPlanned)}</div>
+    </div>
+    <div class="budget-stat">
+      <div class="budget-stat-lbl">Total Actual</div>
+      <div class="budget-stat-val ${totalActual>totalPlanned?'over':'on-track'}">$${fmt(totalActual)}</div>
+    </div>
+    <div class="budget-stat">
+      <div class="budget-stat-lbl">Variance</div>
+      <div class="budget-stat-val ${variance<0?'over':'on-track'}">${variance>=0?'+':''}$${fmt(variance)}</div>
+    </div>`;
+
+  if(!camps.length){
+    document.getElementById('budget-body').innerHTML='<tr><td colspan="6" style="color:var(--stone);font-size:13px;text-align:center;padding:20px;">No campaigns yet — add campaigns in Section 02.</td></tr>';
+    return;
+  }
+
+  document.getElementById('budget-body').innerHTML=camps.map((c,ci)=>{
+    const color=campColor(ci);
+    const expenses=cache.expenses.filter(e=>e.CampaignID===c.CampaignID);
+    const actual=expenses.reduce((s,e)=>s+Number(e.Amount||0),0);
+    const planned=Number(c.PlannedSpend||0);
+    const variance=planned-actual;
+    const pct=planned>0?(actual/planned)*100:0;
+    const rag=planned===0?'#999':pct<=85?'#27ae60':pct<=100?'#e67e22':'#c0392b';
+    const ragLabel=planned===0?'No budget':pct<=85?'On track':pct<=100?'Near limit':'Over budget';
+
+    // Expense sub-rows
+    const expRows=expenses.map(e=>`
+      <tr class="exp-row" id="exprow-${c.CampaignID}" style="display:none">
+        <td style="padding-left:28px;color:var(--stone)">${esc(e.Title)}</td>
+        <td></td><td></td>
+        <td class="num-cell" style="color:var(--stone)">$${fmt(e.Amount)}</td>
+        <td></td><td></td>
+      </tr>`).join('');
+
+    return `
+      <tr>
+        <td>
+          <span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${color};margin-right:6px;vertical-align:middle;"></span>
+          ${esc(c.Title)}
+          ${expenses.length?`<button class="exp-toggle" onclick="toggleExpRows('${c.CampaignID}',this)" title="Show/hide expenses">▾ ${expenses.length}</button>`:''}
+        </td>
+        <td>${esc(c.CostCode||'—')}</td>
+        <td class="num-cell">${planned?'$'+fmt(planned):'—'}</td>
+        <td class="num-cell">$${fmt(actual)}</td>
+        <td class="num-cell ${variance<0?'variance-neg':'variance-pos'}">${variance>=0?'+':''}$${fmt(variance)}</td>
+        <td><span class="rag-dot" style="background:${rag}"></span>${ragLabel}</td>
+      </tr>
+      ${expRows}`;
+  }).join('');
+}
+
+function toggleExpRows(cid,btn){
+  const rows=document.querySelectorAll(`#exprow-${cid}`);
+  const showing=rows[0]?.style.display!=='none';
+  rows.forEach(r=>r.style.display=showing?'none':'');
+  btn.textContent=showing?`▾ ${rows.length}`:`▴ ${rows.length}`;
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  CALENDAR
 // ═══════════════════════════════════════════════════════════════
 const CAL_MONTHS=[{y:2026,m:7},{y:2026,m:8},{y:2026,m:9},{y:2026,m:10},{y:2026,m:11},{y:2026,m:12},{y:2027,m:1},{y:2027,m:2},{y:2027,m:3},{y:2027,m:4},{y:2027,m:5},{y:2027,m:6}];
 const MN=['','January','February','March','April','May','June','July','August','September','October','November','December'];
 const MS=['','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-let calView='months', calGridMonth=null;
+let calView='months',calGridMonth=null;
 
 function parseDate(str){
-  if(!str||!str.trim()) return null;
+  if(!str?.trim())return null;
   const p=str.trim().split('/');
-  if(p.length<3) return null;
-  let [d,mo,y]=[parseInt(p[0]),parseInt(p[1]),parseInt(p[2])];
-  if(y<100) y+=2000;
-  if(isNaN(d)||isNaN(mo)||isNaN(y)) return null;
+  if(p.length<3)return null;
+  let[d,mo,y]=[parseInt(p[0]),parseInt(p[1]),parseInt(p[2])];
+  if(y<100)y+=2000;
+  if(isNaN(d)||isNaN(mo)||isNaN(y))return null;
   return new Date(y,mo-1,d);
 }
 
@@ -1032,19 +1179,19 @@ function getCalEvents(){
   cache.campaigns.forEach((c,ci)=>{
     const color=campColor(ci);
     cache.stages.filter(s=>s.CampaignID===c.CampaignID).forEach(s=>{
-      const sd=parseDate(s.StartDate), ed=parseDate(s.EndDate||s.StartDate);
-      if(sd) events.push({type:'stage',campName:c.Title,label:s.Title,start:sd,end:ed||sd,color});
+      const sd=parseDate(s.StartDate),ed=parseDate(s.EndDate||s.StartDate);
+      if(sd)events.push({type:'stage',campName:c.Title,label:s.Title,start:sd,end:ed||sd,color});
     });
     cache.milestones.filter(m=>m.CampaignID===c.CampaignID).forEach(m=>{
       const d=parseDate(m.MilestoneDate);
-      if(d) events.push({type:'milestone',campName:c.Title,label:m.Title,start:d,end:d,color:'#c8960c',campColor:color});
+      if(d)events.push({type:'milestone',campName:c.Title,label:m.Title,start:d,end:d,color:'#c8960c',campColor:color});
     });
   });
   return events;
 }
 
 function setCalView(v){
-  calView=v; calGridMonth=null;
+  calView=v;calGridMonth=null;
   document.getElementById('cal-btn-months').classList.toggle('active',v==='months');
   document.getElementById('cal-btn-agenda').classList.toggle('active',v==='agenda');
   renderCalendar();
@@ -1058,7 +1205,7 @@ function renderCalendar(){
     document.getElementById('cal-grid-view').style.display='none';
     document.getElementById('cal-agenda-view').style.display='none';
   } else if(calGridMonth){
-    renderMonthGrid(calGridMonth.y, calGridMonth.m);
+    renderMonthGrid(calGridMonth.y,calGridMonth.m);
     document.getElementById('cal-months-view').style.display='none';
     document.getElementById('cal-grid-view').style.display='';
     document.getElementById('cal-agenda-view').style.display='none';
@@ -1071,11 +1218,11 @@ function renderCalendar(){
 }
 
 function renderCalLegend(){
+  const campLegend=cache.campaigns.map((c,ci)=>
+    `<div class="cal-legend-item"><div class="cal-legend-dot" style="background:${campColor(ci)}"></div>${esc(c.Title)}</div>`
+  ).join('');
   document.getElementById('cal-legend').innerHTML=
-    `<div class="cal-legend-item"><div class="cal-legend-dot" style="background:#c8960c;border:1px solid #a07800"></div>Milestone</div>` +
-    cache.campaigns.map((c,ci)=>
-      `<div class="cal-legend-item"><div class="cal-legend-dot" style="background:${campColor(ci)}"></div>${esc(c.Title)}</div>`
-    ).join('');
+    `<div class="cal-legend-item"><div class="cal-legend-dot" style="background:#c8960c;border:1px solid #a07800;"></div>Milestone</div>`+campLegend;
 }
 
 function renderMonthList(){
@@ -1091,28 +1238,31 @@ function renderMonthList(){
   }).join('');
 }
 
-function openMonthGrid(y,m){ calGridMonth={y,m}; renderCalendar(); }
-function closeMonthGrid(){ calGridMonth=null; renderCalendar(); }
+function openMonthGrid(y,m){calGridMonth={y,m};renderCalendar();}
+function closeMonthGrid(){calGridMonth=null;renderCalendar();}
 
 function renderMonthGrid(y,m){
   document.getElementById('cal-month-title').textContent=MN[m]+' '+y;
   const events=getCalEvents();
   const days=new Date(y,m,0).getDate();
   const first=new Date(y,m-1,1).getDay();
-  const grid=document.getElementById('cal-grid');
   const hdrs=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].map(d=>`<div class="cal-day-hdr">${d}</div>`).join('');
   let cells='';
-  for(let i=0;i<first;i++) cells+='<div class="cal-day empty"></div>';
+  for(let i=0;i<first;i++)cells+='<div class="cal-day empty"></div>';
+  const today=new Date();
   for(let d=1;d<=days;d++){
     const date=new Date(y,m-1,d);
     const de=events.filter(e=>date>=new Date(e.start.getFullYear(),e.start.getMonth(),e.start.getDate())&&date<=new Date(e.end.getFullYear(),e.end.getMonth(),e.end.getDate()));
-    const today=new Date(); const isToday=date.toDateString()===today.toDateString();
-    cells+=`<div class="cal-day${isToday?' today':''}"><div class="cal-day-num">${d}</div>${de.map(e=>e.type==='milestone'
-        ? `<div class="cal-event cal-event-milestone" style="background:#c8960c;border:1px solid #a07800;">⭐ ${esc(e.label)}</div>`
-        : `<div class="cal-event" style="background:${e.color}">${esc(e.label)}</div>`
-      ).join('')}</div>`;
+    const isToday=date.toDateString()===today.toDateString();
+    cells+=`<div class="cal-day${isToday?' today':''}">
+      <div class="cal-day-num">${d}</div>
+      ${de.map(e=>e.type==='milestone'
+        ?`<div class="cal-event cal-event-milestone" style="background:#c8960c;">⭐ ${esc(e.label)}</div>`
+        :`<div class="cal-event" style="background:${e.color}">${esc(e.label)}</div>`
+      ).join('')}
+    </div>`;
   }
-  grid.innerHTML=hdrs+cells;
+  document.getElementById('cal-grid').innerHTML=hdrs+cells;
 }
 
 function renderAgenda(){
@@ -1120,210 +1270,58 @@ function renderAgenda(){
   let html='';
   CAL_MONTHS.forEach(({y,m})=>{
     const me=events.filter(e=>e.start.getFullYear()===y&&(e.start.getMonth()+1)===m).sort((a,b)=>a.start-b.start);
-    if(!me.length) return;
-    html+=`<div class="cal-list-month"><div class="cal-list-month-title">${MN[m]} ${y}</div>${me.map(e=>`
-      <div class="cal-list-item">
-        <div class="cal-list-dot" style="background:${e.color}"></div>
+    if(!me.length)return;
+    html+=`<div class="cal-list-month"><div class="cal-list-month-title">${MN[m]} ${y}</div>
+    ${me.map(e=>`
+      <div class="cal-list-item" style="${e.type==='milestone'?'border-left:3px solid #c8960c;background:#fdf9ee;':''}">
+        <div class="cal-list-dot" style="background:${e.type==='milestone'?'#c8960c':e.color}"></div>
         <div>
           <div class="cal-list-date">${e.start.getDate()} ${MS[e.start.getMonth()+1]}${e.end&&e.end.getTime()!==e.start.getTime()?' – '+e.end.getDate()+' '+MS[e.end.getMonth()+1]:''}</div>
           <div class="cal-list-title">${esc(e.label)}</div>
           <div class="cal-list-sub">${esc(e.campName)} · ${e.type==='milestone'?'Milestone':'Stage'}</div>
         </div>
-      </div>`).join('')}</div>`;
+      </div>`).join('')}
+    </div>`;
   });
   document.getElementById('cal-agenda').innerHTML=html||'<p style="font-size:14px;color:var(--stone);font-weight:300;">No events yet — add stages and milestones in the Campaigns section.</p>';
 }
 
 // ═══════════════════════════════════════════════════════════════
-//  SECTION 4 — BUDGET TRACKER
+//  JSON BACKUP
 // ═══════════════════════════════════════════════════════════════
-const bdDz=document.getElementById('budget-dz');
-bdDz.addEventListener('dragover',e=>{e.preventDefault();bdDz.classList.add('drag-over');});
-bdDz.addEventListener('dragleave',()=>bdDz.classList.remove('drag-over'));
-bdDz.addEventListener('drop',e=>{e.preventDefault();bdDz.classList.remove('drag-over');importExcel(e.dataTransfer.files[0]);});
-document.getElementById('budget-input').addEventListener('change',e=>{if(e.target.files[0]) importExcel(e.target.files[0]);});
+function saveJSON(){
+  const blob=new Blob([JSON.stringify(cache,null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;a.download='comms-plan-backup.json';
+  document.body.appendChild(a);a.click();
+  setTimeout(()=>{URL.revokeObjectURL(url);a.remove();},1000);
+  showStatus('JSON backup downloaded','ok',2000);
+}
 
-async function importExcel(file){
-  if(!file) return;
+function loadJSON(file){
+  if(!file||!file.name.endsWith('.json')){showBanner('json-result','error','Please select a .json backup file.');return;}
   const reader=new FileReader();
-  reader.onload=async function(e){
+  reader.onload=function(e){
     try{
-      const wb=XLSX.read(e.target.result,{type:'binary'});
-      const ws=wb.Sheets[wb.SheetNames[0]];
-      const data=XLSX.utils.sheet_to_json(ws,{header:1,defval:''});
-      if(!data.length){ showBanner('budget-result','error','Spreadsheet appears empty.'); return; }
-      const cols=data[0].map(String);
-      const rows=data.slice(1).map(row=>cols.map((_,i)=>String(row[i]||'')));
-      showStatus('Importing spreadsheet…','saving',0);
-      // Save columns
-      const result = await paCall('importBudget', {
-        columns: cols,
-        rows: rows,
-        existingColItemId: cache.budgetColItemId || null,
-        existingRowIds: cache.budgetRows.map(r => r.id)
-      });
-      cache.budgetColItemId = result.colItemId || cache.budgetColItemId;
-      cache.budgetCols = cols;
-      cache.budgetRows = (result.rowIds || []).map((id, i) => ({
-        id, rowId: uid(), sortOrder: i, cells: rows[i]
-      }));
-      renderBudgetTable();
-      showBanner('budget-result','success',`✓ Imported ${rows.length} rows — fully editable below.`);
-      showStatus('Imported','ok',2000);
-    }catch(err){ showBanner('budget-result','error','Could not read file: '+err.message); showStatus('Import failed','error',4000); }
-  };
-  reader.readAsBinaryString(file);
-}
-
-function renderBudgetTable(){
-  const cols=cache.budgetCols;
-  const rows=cache.budgetRows;
-  const wrap=document.getElementById('budget-table-wrap');
-  if(!cols.length&&!rows.length){ wrap.style.display='none'; return; }
-  wrap.style.display='';
-  document.getElementById('budget-header-row').innerHTML=cols.map((col,ci)=>
-    `<th contenteditable="true" spellcheck="false" onblur="updateBudgetCol(${ci},this.innerText)">${esc(col)}</th>`
-  ).join('')+'<th style="width:32px"></th>';
-  document.getElementById('budget-body').innerHTML=rows.map((row,ri)=>
-    `<tr>${(row.cells||[]).map((cell,ci)=>
-      `<td contenteditable="true" spellcheck="false" onblur="updateBudgetCell(${ri},${ci},this.innerText)">${esc(cell)}</td>`
-    ).join('')}<td><button class="row-del-btn" onclick="deleteBudgetRow(${ri})">✕</button></td></tr>`
-  ).join('');
-}
-
-async function updateBudgetCol(ci, val){
-  cache.budgetCols[ci] = val;
-  if(cache.budgetColItemId){
-    await paCall('saveBudgetCols', {colItemId: cache.budgetColItemId, columns: cache.budgetCols});
-  }
-}
-
-async function updateBudgetCell(ri, ci, val){
-  cache.budgetRows[ri].cells[ci]=val;
-  showStatus('Saving…','saving',0);
-  try {
-    await paCall('saveBudgetRow', {id: cache.budgetRows[ri].id, cells: cache.budgetRows[ri].cells});
-    showStatus('Saved','ok',1800);
-  } catch(err){ showStatus('Save failed: '+err.message,'error',4000); }
-}
-
-async function addBudgetRow(){
-  showStatus('Adding row…','saving',0);
-  try {
-    const emptyCells=cache.budgetCols.map(()=>'');
-    const so=cache.budgetRows.length;
-    const rowId = uid();
-    const result = await paCall('saveBudgetRow', {id: null, rowId, cells: emptyCells, sortOrder: so});
-    const spId = result.id || result.Id || 0;
-    cache.budgetRows.push({id: spId, rowId, sortOrder: so, cells: emptyCells});
-    renderBudgetTable();
-    showStatus('Row added','ok',1800);
-  } catch(err){ showStatus('Error: '+err.message,'error',4000); }
-}
-
-async function deleteBudgetRow(ri){
-  showStatus('Deleting…','saving',0);
-  try {
-    await paCall('deleteBudgetRow', {id: cache.budgetRows[ri].id});
-    cache.budgetRows.splice(ri,1);
-    renderBudgetTable();
-    showStatus('Deleted','ok',1800);
-  } catch(err){ showStatus('Delete failed: '+err.message,'error',4000); }
-}
-
-// ═══════════════════════════════════════════════════════════════
-//  JSON BACKUP SAVE / LOAD
-//  Lets you save and restore all data locally as a .json file.
-//  Useful when working offline or before SharePoint is fully set up.
-// ═══════════════════════════════════════════════════════════════
-function saveJSON(){
-  const payload = JSON.stringify(cache, null, 2);
-  const blob = new Blob([payload], {type:'application/json'});
-  const url  = URL.createObjectURL(blob);
-  const a    = document.createElement('a');
-  a.href = url;
-  a.download = 'comms-plan-backup.json';
-  document.body.appendChild(a); a.click();
-  setTimeout(() => { URL.revokeObjectURL(url); a.remove(); }, 1000);
-  showStatus('JSON backup downloaded', 'ok', 2000);
-}
-
-function loadJSON(file){
-  if(!file || !file.name.endsWith('.json')){
-    showBanner('json-load-result','error','Please select a .json backup file.');
-    return;
-  }
-  const reader = new FileReader();
-  reader.onload = function(e){
-    try{
-      const loaded = JSON.parse(e.target.result);
-      // Restore cache from the JSON backup
-      if(loaded.campaigns)  cache.campaigns   = loaded.campaigns;
-      if(loaded.stages)     cache.stages      = loaded.stages;
-      if(loaded.milestones) cache.milestones  = loaded.milestones;
-      if(loaded.blocks)     cache.blocks      = loaded.blocks;
-      if(loaded.settings)   cache.settings    = loaded.settings;
-      if(loaded.budgetCols) cache.budgetCols  = loaded.budgetCols;
-      if(loaded.budgetRows) cache.budgetRows  = loaded.budgetRows;
-      applySettings();
-      renderCampaigns();
-      renderBudgetTable();
-      showBanner('json-load-result','success','✓ Backup loaded — your data has been restored. Note: this only updates the local view. To sync to SharePoint, make a small edit to each item (e.g. re-save a campaign name) which will trigger the write flows.');
-    } catch(err){
-      showBanner('json-load-result','error','Could not read file: '+err.message);
-    }
-  };
-  reader.readAsText(file);
-}
-
-// Wire up json load input
-document.getElementById('json-load-input').addEventListener('change', e => {
-  if(e.target.files[0]) loadJSON(e.target.files[0]);
-});
-
-// ═══════════════════════════════════════════════════════════════
-//  JSON BACKUP SAVE / LOAD
-// ═══════════════════════════════════════════════════════════════
-function saveJSON(){
-  const payload = JSON.stringify(cache, null, 2);
-  const blob = new Blob([payload], {type:'application/json'});
-  const url  = URL.createObjectURL(blob);
-  const a    = document.createElement('a');
-  a.href = url; a.download = 'comms-plan-backup.json';
-  document.body.appendChild(a); a.click();
-  setTimeout(() => { URL.revokeObjectURL(url); a.remove(); }, 1000);
-  showStatus('JSON backup downloaded', 'ok', 2000);
-}
-
-function loadJSON(file){
-  if(!file || !file.name.endsWith('.json')){
-    showBanner('json-load-result','error','Please select a .json backup file.');
-    return;
-  }
-  const reader = new FileReader();
-  reader.onload = function(e){
-    try{
-      const loaded = JSON.parse(e.target.result);
-      if(loaded.campaigns)  cache.campaigns  = loaded.campaigns;
-      if(loaded.stages)     cache.stages     = loaded.stages;
-      if(loaded.milestones) cache.milestones = loaded.milestones;
-      if(loaded.blocks)     cache.blocks     = loaded.blocks;
-      if(loaded.settings)   cache.settings   = loaded.settings;
-      if(loaded.budgetCols) cache.budgetCols = loaded.budgetCols;
-      if(loaded.budgetRows) cache.budgetRows = loaded.budgetRows;
-      jsonLoaded = true;
-      applySettings(); renderCampaigns(); renderBudgetTable();
+      const loaded=JSON.parse(e.target.result);
+      if(loaded.campaigns) cache.campaigns=loaded.campaigns;
+      if(loaded.stages)    cache.stages=loaded.stages;
+      if(loaded.milestones)cache.milestones=loaded.milestones;
+      if(loaded.blocks)    cache.blocks=loaded.blocks;
+      if(loaded.expenses)  cache.expenses=loaded.expenses;
+      if(loaded.settings)  cache.settings=loaded.settings;
+      jsonLoaded=true;
       clearInterval(_pollTimer);
-      showStatus('JSON backup loaded', 'ok', 3000);
-      showBanner('json-load-result','success','✓ Backup loaded — your data is restored. Note: changes will not sync to SharePoint until flows are configured.');
-    } catch(err){ showBanner('json-load-result','error','Could not read file: '+err.message); }
+      applySettings();renderCampaigns();renderBudget();
+      showBanner('json-result','success','✓ Backup loaded — data restored. SharePoint sync paused.');
+      showStatus('Using JSON backup','ok',3000);
+    }catch(err){showBanner('json-result','error','Could not read file: '+err.message);}
   };
   reader.readAsText(file);
 }
-document.addEventListener('DOMContentLoaded', () => {
-  const inp = document.getElementById('json-load-input');
-  if(inp) inp.addEventListener('change', e => { if(e.target.files[0]) loadJSON(e.target.files[0]); });
-});
+
+document.getElementById('json-load-input').addEventListener('change',e=>{if(e.target.files[0])loadJSON(e.target.files[0]);});
 
 // ═══════════════════════════════════════════════════════════════
 //  INIT
@@ -1331,4 +1329,13 @@ document.addEventListener('DOMContentLoaded', () => {
 loadAll();
 </script>
 </body>
-</html>
+</html>"""
+
+with open('/home/claude/comms-plan-final.html', 'w', encoding='utf-8') as f:
+    f.write(html)
+print(f"Written: {len(html)} bytes")
+PYEOF
+python3 /home/claude/build_final.py
+Output
+
+Written: 73930 bytes
